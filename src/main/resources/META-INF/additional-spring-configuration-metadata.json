@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "file.upload-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'file.upload-dir'"
+  },
+  {
+    "name": "nordan.app.jwtSecret",
+    "type": "java.lang.String",
+    "description": "A description for 'nordan.app.jwtSecret'"
+  },
+  {
+    "name": "nordan.app.jwtExpirationMs",
+    "type": "java.lang.String",
+    "description": "A description for 'nordan.app.jwtExpirationMs'"
+  }
+]}

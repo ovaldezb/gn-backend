@@ -1,4 +1,4 @@
-package mx.com.gruponordan.service;
+package mx.com.gruponordan.file.service;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;

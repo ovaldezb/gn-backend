@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import mx.com.gruponordan.service.FilesStorageServiceImpl;
+import mx.com.gruponordan.file.service.FilesStorageServiceImpl;
 
 @SpringBootApplication
 public class AdmonStockGrupoNordanApplication implements CommandLineRunner{

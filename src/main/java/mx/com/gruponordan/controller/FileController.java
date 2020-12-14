@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import mx.com.gruponordan.file.service.FileStorageService;
 import mx.com.gruponordan.model.FileInfo;
 import mx.com.gruponordan.model.MessageResponse;
-import mx.com.gruponordan.service.FileStorageService;
 
 @RestController
 @CrossOrigin("http://localhost:8080")

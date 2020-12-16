@@ -1,0 +1,25 @@
+version: '3.6'
+
+services:
+  mongo:
+    container_name: docker_mongo
+    #networks:
+    #  - gateway
+    ports:
+      - 27017:27017
+    hostname: mongo
+    image: mongo:latest
+    volumes:
+      - ./data/db:/data/db
+
+  spring:
+    container_name: docker-spring
+    #networks:
+    #  - gateway
+    ports:
+      - 8085:8085
+    hostname: spring
+    depends_on:
+      - mongo
+    image: springboot-gruponordan:1.0
+  

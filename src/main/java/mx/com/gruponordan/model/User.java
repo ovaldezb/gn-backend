@@ -34,8 +34,9 @@ public class User {
   
   private boolean activo;
 
-  public User() {
-  }
+ public User() {
+	// TODO Auto-generated constructor stub
+}
 
   public User(String username, String email, String password) {
     this.username = username;
@@ -43,7 +44,23 @@ public class User {
     this.password = password;
   }
 
-  public String getId() {
+  
+  
+
+public User(String id, @NotBlank @Size(max = 20) String username, @NotBlank @Size(max = 50) @Email String email,
+		@NotBlank @Size(max = 120) String password, Set<Role> roles) {
+	super();
+	this.id = id;
+	this.username = username;
+	this.email = email;
+	this.password = password;
+	this.roles = roles;
+}
+
+
+
+
+public String getId() {
     return id;
   }
 

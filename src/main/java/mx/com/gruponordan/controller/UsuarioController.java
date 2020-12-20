@@ -1,9 +1,13 @@
 package mx.com.gruponordan.controller;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +23,7 @@ import mx.com.gruponordan.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/usuario")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UsuarioController {
 
 	@Autowired
@@ -26,7 +31,13 @@ public class UsuarioController {
 
 	@GetMapping
 	public ResponseEntity<?> getAllUsers() {
-		return ResponseEntity.ok(userrepo.findByActivo(true));
+		
+		List<User> user = userrepo.findByActivo(true).stream().map(u ->{
+			u.setPassword("");
+			return new User(u.getId(), u.getUsername(),u.getEmail(),u.getPassword(),u.getRoles());
+		}).collect(Collectors.toList());
+; 
+		return ResponseEntity.ok(user);
 	}
 
 	@GetMapping("/{id}")

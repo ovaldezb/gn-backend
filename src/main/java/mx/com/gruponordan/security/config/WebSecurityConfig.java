@@ -61,17 +61,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		logger.info("configure" + http.toString());
-		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+		
+		http.cors().and().csrf().disable().exceptionHandling()
+				.authenticationEntryPoint(unauthorizedHandler)
+				.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				/* Seccion para restringir acceso, deshabilitado para pruebas*/
+				/*.and()
+				.authorizeRequests()
 				.antMatchers("/api/auth/**").permitAll()
 				.antMatchers("/api/test/**").permitAll()
-				.antMatchers("/swagger-ui.*").permitAll()
-				.antMatchers("/webjars/**").permitAll()
-				.antMatchers("/swagger-resources/**").permitAll()
-				.antMatchers("/v2/api-docs").permitAll()
-				.antMatchers("/csrf**").permitAll()
-				.anyRequest().authenticated();
+				.antMatchers("/api/matprima/**").permitAll()
+				.antMatchers("/api/bitacora/**").permitAll()
+				.antMatchers("/api/file/**").permitAll()
+				.antMatchers("/api/ordenfab/**").permitAll()
+				.antMatchers("/api/producto/**").permitAll()
+				.antMatchers("/api/prodterm/**").permitAll()
+				.anyRequest()
+				.authenticated();*/
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 

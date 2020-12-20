@@ -1,5 +1,7 @@
 package mx.com.gruponordan.controller;
 
+
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +70,10 @@ public class AuthController {
 				.collect(Collectors.toList());
 
 		return ResponseEntity.ok(
-				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+				new JwtResponse(jwt, userDetails.getId(), 
+						userDetails.getUsername(), 
+						userDetails.getEmail(), 
+						roles, new Date().getTime()));
 	}
 
 	@PostMapping("/signup")

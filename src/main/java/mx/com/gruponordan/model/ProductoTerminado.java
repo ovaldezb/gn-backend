@@ -9,7 +9,7 @@ public class ProductoTerminado {
 	@Id
 	private String id;
 	private String nombre;
-	private String codigo;
+	private String clave;
 	private int cantidad;
 	private String tipo;
 	
@@ -25,11 +25,11 @@ public class ProductoTerminado {
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-	public String getCodigo() {
-		return codigo;
+	public String getClave() {
+		return clave;
 	}
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
+	public void setClave(String clave) {
+		this.clave = clave;
 	}
 	public int getCantidad() {
 		return cantidad;

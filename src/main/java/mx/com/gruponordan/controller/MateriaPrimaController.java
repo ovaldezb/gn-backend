@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import mx.com.gruponordan.repository.MateriaPrimaDAO;
 
 @RestController
 @RequestMapping("/api/matprima")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MateriaPrimaController {
 
 	//private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
@@ -29,7 +31,7 @@ public class MateriaPrimaController {
 	MateriaPrimaDAO repoMP;
 
 	@ApiOperation(value="Regresa todas las materias primas")
-	@GetMapping("/get")
+	@GetMapping()
 	public List<MateriaPrima> getAllMP() {
 		return repoMP.findAll();
 	}
@@ -48,9 +50,13 @@ public class MateriaPrimaController {
 
 	@PostMapping()
 	public ResponseEntity<?> saveMP(@RequestBody(required = true) MateriaPrima matprima) {
-		//logger.info(matprima.toString());
+		MateriaPrima mp = repoMP.save(matprima);
+		if(mp!=null) {
+			return ResponseEntity.ok().body(repoMP.save(matprima)) ;
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("error al guardar la materia prima"));
+		}
 		
-		return ResponseEntity.ok().body(repoMP.save(matprima)) ;
 	}
 	
 	@PutMapping("/{id}")
@@ -60,7 +66,7 @@ public class MateriaPrimaController {
 			MateriaPrima mpu = mpf.get();
 			mpu.setDescripcion(matprima.getDescripcion());
 			mpu.setCodigo(matprima.getCodigo());
-			mpu.setPiezas(matprima.getPiezas());
+			mpu.setCantidad(matprima.getCantidad());
 			mpu.setObservaciones(matprima.getObservaciones());
 			mpu.setProveedor(matprima.getProveedor());
 			mpu.setEscaso(matprima.getEscaso());
@@ -74,6 +80,14 @@ public class MateriaPrimaController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteMPById(@PathVariable("id") final String idMatPrima) {
 		repoMP.deleteById(idMatPrima);
-		return ResponseEntity.ok().body(new MessageResponse("status:success"));
+		return ResponseEntity.ok().body(new MessageResponse("success"));
 	}
+	
+	@DeleteMapping
+	public ResponseEntity<?> deleteAllMP() {
+		repoMP.deleteAll();
+		return ResponseEntity.ok().body(new MessageResponse("success"));
+	}
+	
+	
 }

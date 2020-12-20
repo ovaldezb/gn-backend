@@ -3,7 +3,10 @@ package mx.com.gruponordan.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Document(collection = "materiaprima")
 public class MateriaPrima {
@@ -11,16 +14,23 @@ public class MateriaPrima {
 	@Id
 	private String id;
 	private String descripcion;
-	private int piezas;
+	private int cantidad;
+	@DBRef
+	private UnidadMedida unidad;
 	private String codigo;
 	private String proveedor;
-	private Date fechaEtrada;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
+	private Date fechaEntrada;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
 	private Date fechaCaducidad;
 	private String observaciones;
 	private String lote;
 	//private long abundante; // >300
 	private long necesario; //101-300
 	private long escaso; // 0-100
+	private boolean activo;
 	
 	public String getId() {
 		return id;
@@ -34,11 +44,19 @@ public class MateriaPrima {
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	public int getPiezas() {
-		return piezas;
+	
+	public int getCantidad() {
+		return cantidad;
 	}
-	public void setPiezas(int piezas) {
-		this.piezas = piezas;
+	public void setCantidad(int cantidad) {
+		this.cantidad = cantidad;
+	}
+	
+	public UnidadMedida getUnidad() {
+		return unidad;
+	}
+	public void setUnidad(UnidadMedida unidad) {
+		this.unidad = unidad;
 	}
 	public String getCodigo() {
 		return codigo;
@@ -52,11 +70,11 @@ public class MateriaPrima {
 	public void setProveedor(String proveedor) {
 		this.proveedor = proveedor;
 	}
-	public Date getFechaEtrada() {
-		return fechaEtrada;
+	public Date getFechaEntrada() {
+		return fechaEntrada;
 	}
-	public void setFechaEtrada(Date fechaEtrada) {
-		this.fechaEtrada = fechaEtrada;
+	public void setFechaEntrada(Date fechaEntrada) {
+		this.fechaEntrada = fechaEntrada;
 	}
 	public Date getFechaCaducidad() {
 		return fechaCaducidad;
@@ -88,14 +106,12 @@ public class MateriaPrima {
 	public void setEscaso(long escaso) {
 		this.escaso = escaso;
 	}
-	@Override
-	public String toString() {
-		return "MateriaPrima [id=" + id + ", descripcion=" + descripcion + ", piezas=" + piezas + ", codigo=" + codigo
-				+ ", proveedor=" + proveedor + ", fechaEtrada=" + fechaEtrada + ", fechaCaducidad=" + fechaCaducidad
-				+ ", observaciones=" + observaciones + "]";
+	public boolean isActivo() {
+		return activo;
 	}
-	
-	
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
 	
 
 }

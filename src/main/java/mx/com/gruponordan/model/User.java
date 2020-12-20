@@ -31,6 +31,8 @@ public class User {
 
   @DBRef
   private Set<Role> roles = new HashSet<>();
+  
+  private boolean activo;
 
   public User() {
   }
@@ -80,4 +82,12 @@ public class User {
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
   }
+
+public boolean isActivo() {
+	return activo;
+}
+
+public void setActivo(boolean activo) {
+	this.activo = activo;
+}
 }

@@ -1,8 +1,6 @@
 package mx.com.gruponordan.controller;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +29,12 @@ public class UsuarioController {
 
 	@GetMapping
 	public ResponseEntity<?> getAllUsers() {
-		
-		List<User> user = userrepo.findByActivo(true).stream().map(u ->{
-			u.setPassword("");
-			return new User(u.getId(), u.getUsername(),u.getEmail(),u.getPassword(),u.getRoles());
+		List<User> users = userrepo.findAll().stream().map(u ->{
+			User userRet =  new User(u.getId(), u.getUsername(),u.getEmail(),u.getRoles(),u.getNombre(),u.getApellido(),u.getNoEmpleado(),u.isActivo());
+			userRet.setPassword(" ");
+			return userRet;
 		}).collect(Collectors.toList());
-; 
-		return ResponseEntity.ok(user);
+		return ResponseEntity.ok(users);
 	}
 
 	@GetMapping("/{id}")
@@ -46,7 +43,7 @@ public class UsuarioController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> updateUser(@RequestBody final User user) {
+	public ResponseEntity<?> saveUser(@RequestBody final User user) {
 		User us = userrepo.save(user);
 		if (us != null) {
 			return ResponseEntity.ok(us);
@@ -57,18 +54,23 @@ public class UsuarioController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUser(@PathVariable final String id, @RequestBody final User user) {
+		
 		return ResponseEntity.ok(userrepo.findById(id).map(usu -> {
 			usu.setUsername(user.getUsername());
 			usu.setEmail(user.getEmail());
 			usu.setPassword(user.getPassword());
 			usu.setRoles(user.getRoles());
+			usu.setNombre(user.getNombre());
+			usu.setApellido(user.getApellido());
+			usu.setNoEmpleado(user.getNoEmpleado());
+			usu.setActivo(user.isActivo());
 			return userrepo.save(usu);
 		}).orElseGet(() -> {
 			return new User();
 		}));
 	}
 	
-	@DeleteMapping()
+	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteUserById(@PathVariable final String id){
 		return ResponseEntity.ok(userrepo.findById(id).map(usu -> {
 			usu.setActivo(false);

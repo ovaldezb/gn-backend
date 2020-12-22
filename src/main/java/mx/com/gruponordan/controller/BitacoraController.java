@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import mx.com.gruponordan.repository.BitacoraDAO;
 
 @RestController
 @RequestMapping("/api/bitacora")
+@CrossOrigin(origins = "http://localhost:3000")
 public class BitacoraController {
 
 	//private static Logger logger = LoggerFactory.getLogger(Bitacora.class);
@@ -46,7 +48,6 @@ public class BitacoraController {
 	@GetMapping("/{fechaIni}/{fechaFin}")
 	public ResponseEntity<?> getBitacoraByFechas(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") final Date fechaIni, 
 												 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") final Date fechaFin){
-		//logger.info(fechaIni+" "+fechaFin);
 		
 		List<Bitacora> lista = bitacorarepo.findByFechaEventoBetween(fechaIni, fechaFin);
 		if(lista!= null && lista.size() > 0) {
@@ -71,6 +72,5 @@ public class BitacoraController {
 		bitacorarepo.deleteById(id);
 		return ResponseEntity.ok().body(new MessageResponse("success"));
 	}
-	
 	
 }

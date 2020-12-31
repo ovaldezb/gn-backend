@@ -28,7 +28,7 @@ import mx.com.gruponordan.security.service.UserDetailsServiceImpl;
 		prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+	//private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
 	@Autowired
 	UserDetailsServiceImpl userDetailsService;
@@ -43,7 +43,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		logger.info("Uno");
 		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
 
@@ -80,6 +79,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/prodterm/**").permitAll()
 				.antMatchers("/api/role/**").permitAll()
 				.antMatchers("/api/usuario/**").permitAll()
+				.antMatchers("/api/unidad/**").permitAll()
+				.antMatchers("/api/prodisp/**").permitAll()
+				.antMatchers("/api/matprimdisp/**").permitAll()
 				.anyRequest()
 				.authenticated();*/
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

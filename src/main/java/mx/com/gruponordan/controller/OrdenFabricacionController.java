@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import mx.com.gruponordan.repository.OrdenFabricacionDAO;
 
 @RestController
 @RequestMapping("/api/ordenfab")
+@CrossOrigin(origins = "http://localhost:3000")
 public class OrdenFabricacionController {
 
 	@Autowired
@@ -50,9 +52,10 @@ public class OrdenFabricacionController {
 		if(off.isPresent()) {
 			OrdenFabricacion ofu = off.get();
 			ofu.setClave(ordenFabricacion.getClave());
-			ofu.setNombreProducto(ordenFabricacion.getNombreProducto());
-			ofu.setNumLote(ordenFabricacion.getNumLote());
-			ofu.setPiezasAFabricar(ordenFabricacion.getPiezasAFabricar());
+			ofu.setNombre(ordenFabricacion.getNombre());
+			ofu.setOc(ordenFabricacion.getOc());
+			ofu.setLote(ordenFabricacion.getLote());
+			ofu.setPiezas(ordenFabricacion.getPiezas());
 			ofu.setObservaciones(ordenFabricacion.getObservaciones());
 			ofu.setFechaEntrega(ordenFabricacion.getFechaEntrega());
 			ofu.setFechaFabricacion(ordenFabricacion.getFechaFabricacion());

@@ -2,7 +2,10 @@ package mx.com.gruponordan.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -16,22 +19,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.com.gruponordan.model.Bitacora;
+import mx.com.gruponordan.model.BitacoraActv;
 import mx.com.gruponordan.model.MessageResponse;
+import mx.com.gruponordan.model.User;
+import mx.com.gruponordan.repository.BitacoraActvDAO;
 import mx.com.gruponordan.repository.BitacoraDAO;
+import mx.com.gruponordan.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/bitacora")
 @CrossOrigin(origins = "http://localhost:3000")
 public class BitacoraController {
 
-	//private static Logger logger = LoggerFactory.getLogger(Bitacora.class);
+	private static Logger logger = LoggerFactory.getLogger(Bitacora.class);
 	
 	@Autowired
 	BitacoraDAO bitacorarepo;
 	
+	@Autowired
+	BitacoraActvDAO bitactvrepo;
+	
+	@Autowired
+	UserRepository userrepo;
+	
 	@PostMapping
 	public ResponseEntity<?> insertaRegistro(@RequestBody final Bitacora bitacora){
-		return ResponseEntity.ok(bitacorarepo.save(bitacora));
+		
+		Optional<BitacoraActv> bitAct = bitactvrepo.findByName(bitacora.getTipoEvento().getName());
+		Bitacora bitInsert = new Bitacora(bitacora.getUser(),new Date(),bitAct.get(),bitacora.getValPrevio(),bitacora.getValActual());
+		logger.info(bitInsert.toString());
+		return ResponseEntity.ok(bitacorarepo.save(bitInsert));
 	}
 	
 	@GetMapping
@@ -59,7 +76,8 @@ public class BitacoraController {
 	
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getBitacoraById(@PathVariable final String userId){
-		List<Bitacora> lista = bitacorarepo.findByUserId(userId);
+		Optional<User> user = userrepo.findById(userId);
+		List<Bitacora> lista = bitacorarepo.findByUser(user.get());
 		if(lista!= null && lista.size() > 0) {
 			return ResponseEntity.ok(lista);
 		}else {

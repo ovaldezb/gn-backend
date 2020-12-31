@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import mx.com.gruponordan.model.MateriaPrima;
+import mx.com.gruponordan.model.MateriaPrimaDisponible;
 import mx.com.gruponordan.model.MessageResponse;
+import mx.com.gruponordan.repository.MatPrimaDispDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
 
 @RestController
@@ -29,7 +31,10 @@ public class MateriaPrimaController {
 	
 	@Autowired
 	MateriaPrimaDAO repoMP;
-
+	
+	@Autowired
+	MatPrimaDispDAO repoMatPrimDisp;
+	
 	@ApiOperation(value="Regresa todas las materias primas")
 	@GetMapping()
 	public List<MateriaPrima> getAllMP() {
@@ -52,6 +57,11 @@ public class MateriaPrimaController {
 	public ResponseEntity<?> saveMP(@RequestBody(required = true) MateriaPrima matprima) {
 		MateriaPrima mp = repoMP.save(matprima);
 		if(mp!=null) {
+			Optional<MateriaPrimaDisponible> mpdisFound = repoMatPrimDisp.findByCodigo(mp.getCodigo());
+			if(!mpdisFound.isPresent()) {
+				MateriaPrimaDisponible mpdisins = new MateriaPrimaDisponible(mp.getDescripcion(),mp.getUnidad(),mp.getCodigo());
+				repoMatPrimDisp.save(mpdisins);
+			}
 			return ResponseEntity.ok().body(repoMP.save(matprima)) ;
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error al guardar la materia prima"));
@@ -71,6 +81,8 @@ public class MateriaPrimaController {
 			mpu.setProveedor(matprima.getProveedor());
 			mpu.setEscaso(matprima.getEscaso());
 			mpu.setNecesario(matprima.getNecesario());
+			mpu.setFechaEntrada(matprima.getFechaEntrada());
+			mpu.setFechaCaducidad(matprima.getFechaCaducidad());
 			return ResponseEntity.ok(repoMP.save(mpu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

@@ -3,15 +3,15 @@ package mx.com.gruponordan.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "producto")
-public class Producto {
+@Document(collection = "prod_disp")
+public class ProductoDisponible {
 
 	@Id
 	private String id;
 	private String nombre;
 	private String clave;
 	private String tipo;
-	private MateriaPrimaRequerida[] materiaPrima;
+	private MateriaPrimaUsada[] materiaPrimaUsada;
 	
 	public String getId() {
 		return id;
@@ -37,10 +37,10 @@ public class Producto {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
-	public MateriaPrimaRequerida[] getMateriaPrima() {
-		return materiaPrima;
+	public MateriaPrimaUsada[] getMateriaPrimaUsada() {
+		return materiaPrimaUsada;
 	}
-	public void setMateriaPrima(MateriaPrimaRequerida[] materiaPrima) {
-		this.materiaPrima = materiaPrima;
+	public void setMateriaPrimaUsada(MateriaPrimaUsada[] materiaPrimaUsada) {
+		this.materiaPrimaUsada = materiaPrimaUsada;
 	}
 }

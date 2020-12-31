@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.com.gruponordan.model.MessageResponse;
-import mx.com.gruponordan.model.Producto;
+import mx.com.gruponordan.model.ProductoDisponible;
 import mx.com.gruponordan.repository.ProductoDAO;
 
 @RestController
@@ -35,8 +35,8 @@ public class ProductoController {
 	}
 	
 	@PostMapping()
-	public ResponseEntity<?> saveProduct(@RequestBody Producto producto){
-		Producto sp = repoP.save(producto);
+	public ResponseEntity<?> saveProduct(@RequestBody ProductoDisponible producto){
+		ProductoDisponible sp = repoP.save(producto);
 		if(sp!=null) {
 			return ResponseEntity.ok(sp);
 		}else {
@@ -45,14 +45,14 @@ public class ProductoController {
 	}
 	
 	@PutMapping("{/id}")
-	public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody Producto producto) {
-		Optional<Producto> pf = repoP.findById(id);
+	public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody ProductoDisponible producto) {
+		Optional<ProductoDisponible> pf = repoP.findById(id);
 		if(pf.isPresent()) {
-			Producto pu = pf.get();
+			ProductoDisponible pu = pf.get();
 			pu.setNombre(producto.getNombre());
 			pu.setTipo(producto.getTipo());
 			pu.setClave(producto.getClave());
-			pu.setMateriaPrima(producto.getMateriaPrima());
+			pu.setMateriaPrimaUsada(producto.getMateriaPrimaUsada());
 			return ResponseEntity.ok(repoP.save(pu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

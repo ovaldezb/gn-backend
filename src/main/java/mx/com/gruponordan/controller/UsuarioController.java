@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,12 +27,15 @@ public class UsuarioController {
 
 	@Autowired
 	UserRepository userrepo;
+	
+	@Autowired
+	PasswordEncoder encoder;
 
 	@GetMapping
 	public ResponseEntity<?> getAllUsers() {
 		List<User> users = userrepo.findAll().stream().map(u ->{
 			User userRet =  new User(u.getId(), u.getUsername(),u.getEmail(),u.getRoles(),u.getNombre(),u.getApellido(),u.getNoEmpleado(),u.isActivo());
-			userRet.setPassword(" ");
+			userRet.setPassword("");
 			return userRet;
 		}).collect(Collectors.toList());
 		return ResponseEntity.ok(users);
@@ -58,13 +62,15 @@ public class UsuarioController {
 		return ResponseEntity.ok(userrepo.findById(id).map(usu -> {
 			usu.setUsername(user.getUsername());
 			usu.setEmail(user.getEmail());
-			usu.setPassword(user.getPassword());
+			usu.setPassword(encoder.encode(user.getPassword()));
 			usu.setRoles(user.getRoles());
 			usu.setNombre(user.getNombre());
 			usu.setApellido(user.getApellido());
 			usu.setNoEmpleado(user.getNoEmpleado());
 			usu.setActivo(user.isActivo());
-			return userrepo.save(usu);
+			userrepo.save(usu);
+			usu.setPassword("");
+			return usu;
 		}).orElseGet(() -> {
 			return new User();
 		}));

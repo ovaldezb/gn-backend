@@ -10,25 +10,35 @@ public class OrdenFabricacion {
 	
 	@Id
 	private String id;
-	private String nombreProducto;
+	private String oc;
+	private String nombre;
 	private String clave;
 	private Date fechaFabricacion;
 	private Date fechaEntrega;
 	private String idConsecutivo;
-	private String numLote;
-	private int piezasAFabricar;
+	private String lote;
+	private int piezas;
 	private String observaciones;
+	private String cliente;
+	
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getNombreProducto() {
-		return nombreProducto;
+	
+	public String getOc() {
+		return oc;
 	}
-	public void setNombreProducto(String nombreProducto) {
-		this.nombreProducto = nombreProducto;
+	public void setOc(String oc) {
+		this.oc = oc;
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
 	}
 	public String getClave() {
 		return clave;
@@ -54,23 +64,29 @@ public class OrdenFabricacion {
 	public void setIdConsecutivo(String idConsecutivo) {
 		this.idConsecutivo = idConsecutivo;
 	}
-	public String getNumLote() {
-		return numLote;
+	public String getLote() {
+		return lote;
 	}
-	public void setNumLote(String numLote) {
-		this.numLote = numLote;
+	public void setLote(String lote) {
+		this.lote = lote;
 	}
-	public int getPiezasAFabricar() {
-		return piezasAFabricar;
+	public int getPiezas() {
+		return piezas;
 	}
-	public void setPiezasAFabricar(int piezasAFabricar) {
-		this.piezasAFabricar = piezasAFabricar;
+	public void setPiezas(int piezas) {
+		this.piezas = piezas;
 	}
 	public String getObservaciones() {
 		return observaciones;
 	}
 	public void setObservaciones(String observaciones) {
 		this.observaciones = observaciones;
+	}
+	public String getCliente() {
+		return cliente;
+	}
+	public void setCliente(String cliente) {
+		this.cliente = cliente;
 	}
 	
 	

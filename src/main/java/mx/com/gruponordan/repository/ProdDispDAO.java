@@ -4,6 +4,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import mx.com.gruponordan.model.ProductoDisponible;
 
-public interface ProductoDAO extends MongoRepository<ProductoDisponible, String> {
+public interface ProdDispDAO extends MongoRepository<ProductoDisponible, String> {
 
 }

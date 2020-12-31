@@ -31,6 +31,8 @@ public class MateriaPrima {
 	private long necesario; //101-300
 	private long escaso; // 0-100
 	private boolean activo;
+	/*Se pone en true cuando ya se haya ocupado todo el lote de esta MP*/
+	private boolean agotado;
 	
 	public String getId() {
 		return id;
@@ -111,6 +113,12 @@ public class MateriaPrima {
 	}
 	public void setActivo(boolean activo) {
 		this.activo = activo;
+	}
+	public boolean isAgotado() {
+		return agotado;
+	}
+	public void setAgotado(boolean agotado) {
+		this.agotado = agotado;
 	}
 	
 

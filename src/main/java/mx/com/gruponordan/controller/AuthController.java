@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,6 +37,7 @@ import mx.com.gruponordan.repository.RoleRepository;
 import mx.com.gruponordan.repository.UserRepository;
 import mx.com.gruponordan.security.jwt.JwtUtils;
 import mx.com.gruponordan.security.service.UserDetailsImpl;
+import springfox.documentation.spring.web.json.Json;
 
 //@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -56,7 +58,7 @@ public class AuthController {
 
 	@Autowired
 	PasswordEncoder encoder;
-	
+
 	@Autowired
 	BitacoraDAO bitacorarepo;
 
@@ -65,22 +67,25 @@ public class AuthController {
 
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+		try {
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String jwt = jwtUtils.generateJwtToken(authentication);
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwt = jwtUtils.generateJwtToken(authentication);
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+					.collect(Collectors.toList());
 
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
-
-		if (userDetails.isActivo()) {
-			return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
-					userDetails.getEmail(), roles, new Date().getTime()));
-		} else {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error:no activo"));
+			if (userDetails.isActivo()) {
+				return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
+						userDetails.getEmail(), roles, new Date().getTime()));
+			} else {
+				return ResponseEntity.badRequest().body(new MessageResponse("Error:no activo"));
+			}
+		} catch (AuthenticationException aex) {
+			return new ResponseEntity<>( "error:Bad Credentias",HttpStatus.UNAUTHORIZED);
 		}
 
 	}

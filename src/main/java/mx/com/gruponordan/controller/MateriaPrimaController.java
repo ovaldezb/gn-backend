@@ -79,6 +79,7 @@ public class MateriaPrimaController {
 			mpu.setCantidad(matprima.getCantidad());
 			mpu.setObservaciones(matprima.getObservaciones());
 			mpu.setProveedor(matprima.getProveedor());
+			mpu.setUnidad(matprima.getUnidad());
 			mpu.setEscaso(matprima.getEscaso());
 			mpu.setNecesario(matprima.getNecesario());
 			mpu.setFechaEntrada(matprima.getFechaEntrada());

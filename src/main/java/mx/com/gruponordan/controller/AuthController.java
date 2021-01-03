@@ -37,7 +37,6 @@ import mx.com.gruponordan.repository.RoleRepository;
 import mx.com.gruponordan.repository.UserRepository;
 import mx.com.gruponordan.security.jwt.JwtUtils;
 import mx.com.gruponordan.security.service.UserDetailsImpl;
-import springfox.documentation.spring.web.json.Json;
 
 //@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

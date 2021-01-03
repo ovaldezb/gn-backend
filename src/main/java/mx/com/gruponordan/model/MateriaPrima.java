@@ -1,5 +1,6 @@
 package mx.com.gruponordan.model;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -14,7 +15,7 @@ public class MateriaPrima {
 	@Id
 	private String id;
 	private String descripcion;
-	private int cantidad;
+	private double cantidad;
 	@DBRef
 	private UnidadMedida unidad;
 	private String codigo;
@@ -32,7 +33,9 @@ public class MateriaPrima {
 	private long escaso; // 0-100
 	private boolean activo;
 	/*Se pone en true cuando ya se haya ocupado todo el lote de esta MP*/
-	private boolean agotado;
+	private double factor;
+	private double apartado;
+	
 	
 	public String getId() {
 		return id;
@@ -47,10 +50,11 @@ public class MateriaPrima {
 		this.descripcion = descripcion;
 	}
 	
-	public int getCantidad() {
-		return cantidad;
+	public double getCantidad() {
+		DecimalFormat df = new DecimalFormat("#########.##");
+		return Double.parseDouble(df.format(cantidad));
 	}
-	public void setCantidad(int cantidad) {
+	public void setCantidad(double cantidad) {
 		this.cantidad = cantidad;
 	}
 	
@@ -114,12 +118,28 @@ public class MateriaPrima {
 	public void setActivo(boolean activo) {
 		this.activo = activo;
 	}
-	public boolean isAgotado() {
-		return agotado;
+	public double getFactor() {
+		return factor;
 	}
-	public void setAgotado(boolean agotado) {
-		this.agotado = agotado;
+	public void setFactor(double factor) {
+		this.factor = factor;
 	}
+	public double getApartado() {
+		return apartado;
+	}
+	public void setApartado(double apartado) {
+		this.apartado = apartado;
+	}
+	@Override
+	public String toString() {
+		return "MateriaPrima [id=" + id + ", descripcion=" + descripcion + ", cantidad=" + cantidad + ", unidad="
+				+ unidad + ", codigo=" + codigo + ", proveedor=" + proveedor + ", fechaEntrada=" + fechaEntrada
+				+ ", fechaCaducidad=" + fechaCaducidad + ", observaciones=" + observaciones + ", lote=" + lote
+				+ ", necesario=" + necesario + ", escaso=" + escaso + ", activo=" + activo + ", factor=" + factor
+				+ ", apartado=" + apartado + "]";
+	}
+	
+	
 	
 
 }

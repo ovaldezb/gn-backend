@@ -1,9 +1,12 @@
 package mx.com.gruponordan.model;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Document(collection = "orden_fabriacion")
 public class OrdenFabricacion {
@@ -13,13 +16,19 @@ public class OrdenFabricacion {
 	private String oc;
 	private String nombre;
 	private String clave;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
 	private Date fechaFabricacion;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
 	private Date fechaEntrega;
-	private String idConsecutivo;
+	private long noConsecutivo;
 	private String lote;
 	private int piezas;
 	private String observaciones;
 	private String cliente;
+	private List<MatPrimaOrdFab> matprima;
+	private Eestatus estatus;
 	
 	public String getId() {
 		return id;
@@ -58,11 +67,11 @@ public class OrdenFabricacion {
 	public void setFechaEntrega(Date fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
 	}
-	public String getIdConsecutivo() {
-		return idConsecutivo;
+	public long getNoConsecutivo() {
+		return noConsecutivo;
 	}
-	public void setIdConsecutivo(String idConsecutivo) {
-		this.idConsecutivo = idConsecutivo;
+	public void setNoConsecutivo(long noConsecutivo) {
+		this.noConsecutivo = noConsecutivo;
 	}
 	public String getLote() {
 		return lote;
@@ -88,6 +97,19 @@ public class OrdenFabricacion {
 	public void setCliente(String cliente) {
 		this.cliente = cliente;
 	}
+	public List<MatPrimaOrdFab> getMatprima() {
+		return matprima;
+	}
+	public void setMatprima(List<MatPrimaOrdFab> matprima) {
+		this.matprima = matprima;
+	}
+	public Eestatus getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Eestatus estatus) {
+		this.estatus = estatus;
+	}
+
 	
 	
 

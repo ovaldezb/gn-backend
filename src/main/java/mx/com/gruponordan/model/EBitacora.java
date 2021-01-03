@@ -9,5 +9,8 @@ public enum EBitacora {
 	DEL_MATPRIM,
 	ADD_OF,
 	UPDT_OF,
-	DEL_OF
+	DEL_OF,
+	ADD_PRDDISP,
+	UPDT_PRDDISP,
+	DEL_PRDDISP
 }

@@ -21,7 +21,7 @@ import mx.com.gruponordan.repository.ProdDispDAO;
 @RestController
 @RequestMapping("/api/prodisp")
 @CrossOrigin(origins = "http://localhost:3000")
-public class ProdDispController {
+public class ProductoDisponibleController {
 	
 	@Autowired
 	ProdDispDAO prddisprepo;
@@ -29,6 +29,11 @@ public class ProdDispController {
 	@GetMapping
 	public ResponseEntity<?> getAllProdDisp(){
 		return ResponseEntity.ok( prddisprepo.findAll());
+	}
+	
+	@GetMapping("/{clave}")
+	public ResponseEntity<?> getProdDispByClave(@PathVariable final String clave){
+		return ResponseEntity.ok(prddisprepo.findByClave(clave));
 	}
 	
 	@PostMapping

@@ -44,7 +44,6 @@ public class ProductoTerminadoController {
 	@GetMapping("/{clave}")
 	public ResponseEntity<?> getPtByCodigo(@PathVariable final String clave){
 		ProductoTerminado pt = repoPT.findByClave(clave);
-		
 		if(pt!=null) {
 			return ResponseEntity.ok(pt);
 		}else {
@@ -63,10 +62,7 @@ public class ProductoTerminadoController {
 		
 		if(ptf.isPresent()) {
 			ProductoTerminado ptu = ptf.get();
-			ptu.setNombre(pt.getNombre());
-			ptu.setClave(pt.getClave());
-			ptu.setCantidad(pt.getCantidad());
-			ptu.setTipo(pt.getTipo());
+			ptu.setEstatus(pt.getEstatus());
 			
 			return ResponseEntity.ok(repoPT.save(ptu));
 		}else {

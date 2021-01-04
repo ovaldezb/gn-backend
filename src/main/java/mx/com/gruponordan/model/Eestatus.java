@@ -1,7 +1,7 @@
 package mx.com.gruponordan.model;
 
 public enum Eestatus {
-	DFAFT,
+	DRAFT,
 	TEP,
 	CMPLT,
 	WTDEL,

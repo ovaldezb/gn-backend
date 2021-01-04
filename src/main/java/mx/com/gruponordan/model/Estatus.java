@@ -19,7 +19,7 @@ public class Estatus {
 	public Eestatus getCodigo() {
 		return codigo;
 	}
-	public void setCodifo(Eestatus codigo) {
+	public void setCodigo(Eestatus codigo) {
 		this.codigo = codigo;
 	}
 	public String getLabel() {

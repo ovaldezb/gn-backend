@@ -71,6 +71,7 @@ public class MateriaPrimaController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateMP(@PathVariable(required = true) String id, @RequestBody MateriaPrima matprima){
+		//System.out.println(matprima);
 		Optional<MateriaPrima> mpf = repoMP.findById(id);
 		if(mpf.isPresent()) {
 			MateriaPrima mpu = mpf.get();

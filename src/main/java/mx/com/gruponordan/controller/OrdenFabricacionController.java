@@ -179,9 +179,7 @@ public class OrdenFabricacionController {
 			OrdenFabricacion ofu = off.get();
 			ofu.setEstatus(Eestatus.CMPLT);
 			Estatus estatus = repoestatus.findByCodigo(Eestatus.WTDEL);
-			System.out.println(estatus);
 			ProductoTerminado pt = new ProductoTerminado(ofu.getNombre(),ofu.getClave(),ofu.getPiezas(),ofu.getLote(),ofu.getCliente(),ofu.getOc(),ofu.getFechaFabricacion(),ofu.getFechaEntrega(),estatus);
-			System.out.println(pt);
 			repoprodterm.save(pt);
 			return ResponseEntity.ok(repoOF.save(ofu));
 		}else {

@@ -47,7 +47,7 @@ public class BitacoraController {
 		
 		Optional<BitacoraActv> bitAct = bitactvrepo.findByName(bitacora.getTipoEvento().getName());
 		Bitacora bitInsert = new Bitacora(bitacora.getUser(),new Date(),bitAct.get(),bitacora.getValPrevio(),bitacora.getValActual());
-		logger.info(bitInsert.toString());
+		//logger.info(bitInsert.toString());
 		return ResponseEntity.ok(bitacorarepo.save(bitInsert));
 	}
 	

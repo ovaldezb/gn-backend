@@ -4,50 +4,58 @@ import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 @Document(collection = "producto_terminado")
 public class ProductoTerminado {
-	
+
 	@Id
 	private String id;
+	@DBRef
+	private Estatus estatus;
 	private String nombre;
 	private String clave;
 	private double piezas;
 	private String lote;
 	private String cliente;
 	private String oc;
-	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
-	private Date fehaFabricacion;
-	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
-	private Date fechaEntrega;
-	@DBRef
-	private Estatus estatus;
 	private String comentario;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date fechaFabricacion;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date fechaEntrega;
 	
-	public ProductoTerminado(String nombre, String clave, double piezas, String lote, String cliente, String oc,
-		Date fehaFabricacion, Date fechaEntrega, Estatus estatus) {
+	
+	
+	public ProductoTerminado(String nombre, String clave, double piezas, String lote, String cliente,
+			String oc, Date fechaFabricacion, Date fechaEntrega,Estatus estatus) {
 		super();
+		this.estatus = estatus;
 		this.nombre = nombre;
 		this.clave = clave;
 		this.piezas = piezas;
 		this.lote = lote;
 		this.cliente = cliente;
 		this.oc = oc;
-		this.fehaFabricacion = fehaFabricacion;
+		this.fechaFabricacion = fechaFabricacion;
 		this.fechaEntrega = fechaEntrega;
-		this.estatus = estatus;
 	}
-	
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
+	}
+	public Estatus getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Estatus estatus) {
+		this.estatus = estatus;
 	}
 	public String getNombre() {
 		return nombre;
@@ -85,11 +93,17 @@ public class ProductoTerminado {
 	public void setOc(String oc) {
 		this.oc = oc;
 	}
-	public Date getFehaFabricacion() {
-		return fehaFabricacion;
+	public String getComentario() {
+		return comentario;
 	}
-	public void setFehaFabricacion(Date fehaFabricacion) {
-		this.fehaFabricacion = fehaFabricacion;
+	public void setComentario(String comentario) {
+		this.comentario = comentario;
+	}
+	public Date getFechaFabricacion() {
+		return fechaFabricacion;
+	}
+	public void setFechaFabricacion(Date fechaFabricacion) {
+		this.fechaFabricacion = fechaFabricacion;
 	}
 	public Date getFechaEntrega() {
 		return fechaEntrega;
@@ -97,27 +111,12 @@ public class ProductoTerminado {
 	public void setFechaEntrega(Date fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
 	}
-	
-	public Estatus getEstatus() {
-		return estatus;
-	}
-	public void setEstatus(Estatus estatus) {
-		this.estatus = estatus;
-	}
-	public String getComentario() {
-		return comentario;
-	}
-	public void setComentario(String comentario) {
-		this.comentario = comentario;
-	}
-	
 	@Override
 	public String toString() {
-		return "ProductoTerminado [id=" + id + ", nombre=" + nombre + ", clave=" + clave + ", piezas=" + piezas
-				+ ", lote=" + lote + ", cliente=" + cliente + ", oc=" + oc + ", fehaFabricacion=" + fehaFabricacion
-				+ ", fechaEntrega=" + fechaEntrega + ", estatus=" + estatus + ", comentario=" + comentario + "]";
+		return "ProductoTerminado [id=" + id + ", estatus=" + estatus + ", nombre=" + nombre + ", clave=" + clave
+				+ ", piezas=" + piezas + ", lote=" + lote + ", cliente=" + cliente + ", oc=" + oc + ", comentario="
+				+ comentario + ", fechaFabricacion=" + fechaFabricacion + ", fechaEntrega=" + fechaEntrega + "]";
 	}
 	
 	
-
 }

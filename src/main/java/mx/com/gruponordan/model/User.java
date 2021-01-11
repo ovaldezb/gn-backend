@@ -1,8 +1,5 @@
 package mx.com.gruponordan.model;
 
-import java.util.Arrays;
-
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -20,47 +17,47 @@ public class User {
 	private String username;
 
 	// @NotBlank
-	@Size(max = 50)
-	@Email
-	private String email;
+	//@Size(max = 50)
+	//@Email
+	//private String email;
 
 	@NotBlank
 	@Size(max = 120)
 	private String password;
 
+	//@DBRef
+	//private Role[] roles;
 	@DBRef
-	private Role[] roles;
+	private Areas area;
 	private boolean activo;
 	private String nombre;
 	private String apellido;
-	private String noEmpleado;
+	//private String noEmpleado;
 
-	public User() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public User(String id, String username, String email, Role[] roles, String nombre, String apellido, String noEmpleado, boolean activo) {
+	public User(String id, String username, String nombre, String apellido, boolean activo, Areas area) {
 		super();
 		this.id = id;
 		this.username = username;
-		this.email = email;
-		this.roles = roles;
+		//this.email = email;
+		//this.roles = roles;
 		this.nombre = nombre;
 		this.apellido = apellido;
-		this.noEmpleado = noEmpleado;
 		this.activo = activo;
+		this.area = area;
 	}
 
-	public User(String username, String email, String password, boolean activo, String nombre, String apellido,
-			String noEmpleado) {
+	public User(String username, String password, boolean activo, String nombre, String apellido, Areas area) {
 		super();
 		this.username = username;
-		this.email = email;
 		this.password = password;
 		this.activo = activo;
 		this.nombre = nombre;
 		this.apellido = apellido;
-		this.noEmpleado = noEmpleado;
+		this.area = area;
+	}
+
+	public User() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getId() {
@@ -79,28 +76,12 @@ public class User {
 		this.username = username;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getPassword() {
 		return password;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public Role[] getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Role[] roles) {
-		this.roles = roles;
 	}
 
 	public boolean isActivo() {
@@ -127,19 +108,18 @@ public class User {
 		this.apellido = apellido;
 	}
 
-	public String getNoEmpleado() {
-		return noEmpleado;
+	public Areas getArea() {
+		return area;
 	}
 
-	public void setNoEmpleado(String noEmpleado) {
-		this.noEmpleado = noEmpleado;
+	public void setArea(Areas area) {
+		this.area = area;
 	}
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password + ", roles="
-				+ Arrays.toString(roles) + ", activo=" + activo + ", nombre=" + nombre + ", apellido=" + apellido
-				+ ", noEmpleado=" + noEmpleado + "]";
+		return "User [id=" + id + ", username=" + username + ", password=" + password + ", roles="
+				+ ", activo=" + activo + ", nombre=" + nombre + ", apellido=" + apellido + "]";
 	}
 	
 	

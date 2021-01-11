@@ -85,6 +85,7 @@ public class MateriaPrimaController {
 			mpu.setNecesario(matprima.getNecesario());
 			mpu.setFechaEntrada(matprima.getFechaEntrada());
 			mpu.setFechaCaducidad(matprima.getFechaCaducidad());
+			mpu.setTipo(matprima.getTipo());
 			return ResponseEntity.ok(repoMP.save(mpu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

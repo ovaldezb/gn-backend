@@ -34,7 +34,7 @@ public class UsuarioController {
 	@GetMapping
 	public ResponseEntity<?> getAllUsers() {
 		List<User> users = userrepo.findAll().stream().map(u ->{
-			User userRet =  new User(u.getId(), u.getUsername(),u.getEmail(),u.getRoles(),u.getNombre(),u.getApellido(),u.getNoEmpleado(),u.isActivo());
+			User userRet =  new User(u.getId(), u.getUsername(),u.getNombre(),u.getApellido(),u.isActivo(), u.getArea());
 			userRet.setPassword("");
 			return userRet;
 		}).collect(Collectors.toList());
@@ -61,16 +61,15 @@ public class UsuarioController {
 		
 		return ResponseEntity.ok(userrepo.findById(id).map(usu -> {
 			usu.setUsername(user.getUsername());
-			usu.setEmail(user.getEmail());
-			usu.setPassword(encoder.encode(user.getPassword()));
-			usu.setRoles(user.getRoles());
+			//usu.setPassword(encoder.encode(user.getPassword()));
 			usu.setNombre(user.getNombre());
 			usu.setApellido(user.getApellido());
-			usu.setNoEmpleado(user.getNoEmpleado());
 			usu.setActivo(user.isActivo());
-			userrepo.save(usu);
-			usu.setPassword("");
-			return usu;
+			usu.setArea(user.getArea());
+			if(!usu.getPassword().equals("")) {
+				usu.setPassword(encoder.encode(user.getPassword()));
+			}
+			return userrepo.save(usu);
 		}).orElseGet(() -> {
 			return new User();
 		}));
@@ -78,12 +77,9 @@ public class UsuarioController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteUserById(@PathVariable final String id){
-		return ResponseEntity.ok(userrepo.findById(id).map(usu -> {
-			usu.setActivo(false);
-			return userrepo.save(usu);
-		}).orElseGet(() -> {
-			return new User();
-		}));
+		userrepo.deleteById(id);
+		return ResponseEntity.ok(new MessageResponse("eliminado")) ;
+		
 	}
 	
 	

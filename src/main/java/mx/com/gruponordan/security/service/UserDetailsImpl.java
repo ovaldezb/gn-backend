@@ -1,13 +1,9 @@
 package mx.com.gruponordan.security.service;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,30 +18,35 @@ public class UserDetailsImpl implements UserDetails {
 
 	private String username;
 
-	private String email;
-
 	@JsonIgnore
 	private String password;
 	
 	private boolean activo;
+	
+	private String area;
+	
+	private String codeArea;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl(String id, String username, String email, String password,boolean activo,
-			Collection<? extends GrantedAuthority> authorities) {
+	public UserDetailsImpl(String id, String username, String password,boolean activo, String area, String codeArea) {
 		this.id = id;
 		this.username = username;
-		this.email = email;
 		this.password = password;
 		this.activo = activo;
-		this.authorities = authorities;
+		this.area = area;
+		this.codeArea = codeArea;
+		//this.authorities = authorities;
 	}
 
 	public static UserDetailsImpl build(User user) {
-		List<GrantedAuthority> authorities = Arrays.asList( user.getRoles()).stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
+		/*
+		 * List<GrantedAuthority> authorities = Arrays.asList( user.getRoles()).stream()
+		 * .map(role -> new
+		 * SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
+		 */
 
-		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivo(), authorities);
+		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getPassword(), user.isActivo(), user.getArea().getName(), user.getArea().getCodigo().name());
 	}
 
 	@Override
@@ -61,10 +62,6 @@ public class UserDetailsImpl implements UserDetails {
 		return activo;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
 	@Override
 	public String getPassword() {
 		return password;
@@ -75,6 +72,13 @@ public class UserDetailsImpl implements UserDetails {
 		return username;
 	}
 
+	public String getArea() {
+		return area;
+	}
+	
+	public String getCodeArea() {
+		return codeArea;
+	}
 
 	@Override
 	public boolean isAccountNonExpired() {
@@ -105,5 +109,13 @@ public class UserDetailsImpl implements UserDetails {
 		UserDetailsImpl user = (UserDetailsImpl) o;
 		return Objects.equals(id, user.id);
 	}
+
+	@Override
+	public String toString() {
+		return "UserDetailsImpl [id=" + id + ", username=" + username + ", password=" + password + ", activo=" + activo
+				+ ", area=" + area + ", codeArea=" + codeArea + "]";
+	}
+	
+	
 
 }

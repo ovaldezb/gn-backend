@@ -35,6 +35,7 @@ public class MateriaPrima {
 	/*Se pone en true cuando ya se haya ocupado todo el lote de esta MP*/
 	private double factor;
 	private double apartado;
+	private String tipo; //P : Produccion, I: I&D
 	
 	
 	public String getId() {
@@ -130,14 +131,24 @@ public class MateriaPrima {
 	public void setApartado(double apartado) {
 		this.apartado = apartado;
 	}
+	public String getTipo() {
+		return tipo;
+	}
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+	
 	@Override
 	public String toString() {
 		return "MateriaPrima [id=" + id + ", descripcion=" + descripcion + ", cantidad=" + cantidad + ", unidad="
 				+ unidad + ", codigo=" + codigo + ", proveedor=" + proveedor + ", fechaEntrada=" + fechaEntrada
 				+ ", fechaCaducidad=" + fechaCaducidad + ", observaciones=" + observaciones + ", lote=" + lote
 				+ ", necesario=" + necesario + ", escaso=" + escaso + ", activo=" + activo + ", factor=" + factor
-				+ ", apartado=" + apartado + "]";
+				+ ", apartado=" + apartado + ", tipo=" + tipo + "]";
 	}
+	
+	
+
 	
 	
 	

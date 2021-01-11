@@ -1,23 +1,22 @@
 package mx.com.gruponordan.model;
 
-import java.util.List;
-
 public class JwtResponse {
 	private String token;
 	private String type = "Bearer";
 	private String id;
 	private String username;
-	private String email;
-	private List<String> roles;
 	private long dateIssued;
+	private String area;
+	private String codeArea;
 
-	public JwtResponse(String accessToken, String id, String username, String email, List<String> roles,long dateIssued) {
+
+	public JwtResponse(String accessToken, String id, String username,long dateIssued, String area, String codeArea) {
 		this.token = accessToken;
 		this.id = id;
 		this.username = username;
-		this.email = email;
-		this.roles = roles;
 		this.dateIssued = dateIssued;
+		this.area = area;
+		this.codeArea = codeArea;
 	}
 
 	public String getAccessToken() {
@@ -44,14 +43,6 @@ public class JwtResponse {
 		this.id = id;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getUsername() {
 		return username;
 	}
@@ -60,15 +51,16 @@ public class JwtResponse {
 		this.username = username;
 	}
 
-	public List<String> getRoles() {
-		return roles;
-	}
-
 	public long getDateIssued() {
 		return dateIssued;
 	}
 
-	public void setDateIssued(long dateIssued) {
-		this.dateIssued = dateIssued;
+	public String getArea() {
+		return area;
 	}
+	
+	public String getCodeArea() {
+		return codeArea;
+	}
+
 }

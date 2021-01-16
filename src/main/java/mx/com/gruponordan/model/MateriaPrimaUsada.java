@@ -14,7 +14,7 @@ public class MateriaPrimaUsada {
 	@Id
 	private String id;
 	private MateriaPrimaDisponible materiaprimadisponible;
-	private double cantidad;
+	private double porcentaje;
 	
 	public String getId() {
 		return id;
@@ -28,12 +28,13 @@ public class MateriaPrimaUsada {
 	public void setMateriaprimadisponible(MateriaPrimaDisponible materiaprimadisponible) {
 		this.materiaprimadisponible = materiaprimadisponible;
 	}
-	public double getCantidad() {
-		return cantidad;
+	public double getPorcentaje() {
+		return porcentaje;
 	}
-	public void setCantidad(double cantidad) {
-		this.cantidad = cantidad;
+	public void setPorcentaje(double porcentaje) {
+		this.porcentaje = porcentaje;
 	}
+	
 	
 
 }

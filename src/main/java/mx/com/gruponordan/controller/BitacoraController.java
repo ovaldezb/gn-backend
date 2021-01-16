@@ -28,9 +28,7 @@ import mx.com.gruponordan.repository.UserRepository;
 @RequestMapping("/api/bitacora")
 @CrossOrigin(origins = "http://localhost:3000")
 public class BitacoraController {
-
 	//private static Logger logger = LoggerFactory.getLogger(Bitacora.class);
-	
 	@Autowired
 	BitacoraDAO bitacorarepo;
 	
@@ -42,10 +40,8 @@ public class BitacoraController {
 	
 	@PostMapping
 	public ResponseEntity<?> insertaRegistro(@RequestBody final Bitacora bitacora){
-		
 		Optional<BitacoraActv> bitAct = bitactvrepo.findByName(bitacora.getTipoEvento().getName());
 		Bitacora bitInsert = new Bitacora(bitacora.getUser(),new Date(),bitAct.get(),bitacora.getValPrevio(),bitacora.getValActual());
-		//logger.info(bitInsert.toString());
 		return ResponseEntity.ok(bitacorarepo.save(bitInsert));
 	}
 	
@@ -72,8 +68,19 @@ public class BitacoraController {
 		}
 	}
 	
-	@GetMapping("/{userId}")
-	public ResponseEntity<?> getBitacoraById(@PathVariable final String userId){
+	@GetMapping("/{idBitacora}")
+	public ResponseEntity<?> getBitacoraById(@PathVariable final String idBitacora){
+		//Optional<User> user = userrepo.findById(idBitacora);
+		Optional<Bitacora> bitacora = bitacorarepo.findById(idBitacora);
+		if(bitacora.isPresent()) {
+			return ResponseEntity.ok(bitacora.get());
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("error"));
+		}
+	}
+	
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<?> getBitacoraByUsuario(@PathVariable final String userId){
 		Optional<User> user = userrepo.findById(userId);
 		List<Bitacora> lista = bitacorarepo.findByUser(user.get());
 		if(lista!= null && lista.size() > 0) {

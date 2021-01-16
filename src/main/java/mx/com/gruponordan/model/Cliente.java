@@ -8,10 +8,11 @@ public class Cliente {
 	@Id
 	private String id;
 	private String nombre;
-	private String noCliente;
-	private String rfc;
+	private String direccion;
 	private String telefono;
 	private String email;
+	private String rfc;
+	private String contacto;
 	private boolean activo;
 	
 	public String getId() {
@@ -25,12 +26,6 @@ public class Cliente {
 	}
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
-	}
-	public String getNoCliente() {
-		return noCliente;
-	}
-	public void setNoCliente(String noCliente) {
-		this.noCliente = noCliente;
 	}
 	public String getRfc() {
 		return rfc;
@@ -55,6 +50,18 @@ public class Cliente {
 	}
 	public void setActivo(boolean activo) {
 		this.activo = activo;
+	}
+	public String getDireccion() {
+		return direccion;
+	}
+	public void setDireccion(String direccion) {
+		this.direccion = direccion;
+	}
+	public String getContacto() {
+		return contacto;
+	}
+	public void setContacto(String contacto) {
+		this.contacto = contacto;
 	}
 	
 }

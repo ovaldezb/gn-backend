@@ -115,7 +115,5 @@ public class UserDetailsImpl implements UserDetails {
 		return "UserDetailsImpl [id=" + id + ", username=" + username + ", password=" + password + ", activo=" + activo
 				+ ", area=" + area + ", codeArea=" + codeArea + "]";
 	}
-	
-	
 
 }

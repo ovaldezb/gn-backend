@@ -45,6 +45,8 @@ public class ClienteController {
 			cliupdt.setNombre(cliente.getNombre());
 			cliupdt.setRfc(cliente.getRfc());
 			cliupdt.setTelefono(cliente.getTelefono());
+			cliupdt.setContacto(cliente.getContacto());
+			cliupdt.setDireccion(cliente.getDireccion());
 			return ResponseEntity.ok(repocliente.save(cliupdt));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error"));

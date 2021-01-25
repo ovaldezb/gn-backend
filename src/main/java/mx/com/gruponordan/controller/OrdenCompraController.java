@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.com.gruponordan.model.Eestatus;
-import mx.com.gruponordan.model.Estatus;
 import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
 import mx.com.gruponordan.repository.EstatusDAO;
@@ -32,14 +31,29 @@ public class OrdenCompraController {
 	@Autowired
 	EstatusDAO repoestatus;
 	
-	@GetMapping()
+	@GetMapping("/all")
 	public ResponseEntity<?> getAllOC(){
 		return ResponseEntity.ok(repoOC.findAll());
+	}
+	
+	@GetMapping()
+	public ResponseEntity<?> getActiveOC(){
+		return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getOCById(@PathVariable final String idOrdenCompra){
 		Optional<OrdenCompra> oc = repoOC.findById(idOrdenCompra);
+		if(oc.isPresent()) {
+			return ResponseEntity.ok(oc);
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));
+		}
+	}
+	
+	@GetMapping("/oc/{ordenCompra}")
+	public ResponseEntity<?> getOCByNumber(@PathVariable final String ordenCompra){
+		Optional<OrdenCompra> oc = repoOC.findByOc(ordenCompra);
 		if(oc.isPresent()) {
 			return ResponseEntity.ok(oc);
 		}else {
@@ -75,7 +89,7 @@ public class OrdenCompraController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteOC(@PathVariable String id) {
-		Optional<OrdenCompra> ocf = repoOC.findById(id);
+		/*Optional<OrdenCompra> ocf = repoOC.findById(id);
 		if(ocf.isPresent()) {
 			Estatus estatus = repoestatus.findByCodigo(Eestatus.CMPLT);
 			OrdenCompra ocu = ocf.get();
@@ -83,6 +97,8 @@ public class OrdenCompraController {
 			return ResponseEntity.ok(repoOC.save(ocu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error"));
-		}
+		}*/
+		repoOC.deleteById(id);
+		return ResponseEntity.ok(new MessageResponse("deleted"));
 	}
 }

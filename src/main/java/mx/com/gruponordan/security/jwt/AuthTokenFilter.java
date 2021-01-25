@@ -23,6 +23,7 @@ import mx.com.gruponordan.security.service.UserDetailsServiceImpl;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 	
+	
 	@Autowired
 	private JwtUtils jwtUtils;
 
@@ -35,7 +36,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			//logger.info(request.toString());
+			//System.out.println(request.getRequestURI());
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 				String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -43,12 +44,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
 				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}else if(!request.getRequestURI().toString().equals("/api/auth/signin")){	
+				response.sendError(HttpStatus.UNAUTHORIZED.value());
+			}/*
+			else if(!request.getRequestURI().toString().equals("/api/auth/signin") && !request.getRequestURI().toString().equals("/v2/api-docs") 
+					&& !request.getRequestURI().toString().contains("swagger") && !request.getRequestURI().toString().contains("/webjars") ){
+				
+				response.sendError(HttpStatus.UNAUTHORIZED.value());
 			}
+			*/
 		} catch (ExpiredJwtException e) {
-			logger.error("Cannot set user authentication: {}", e.getMessage());
+			logger.error("Error", e);
 			response.sendError(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+		} catch(Exception e) {
+			logger.error("Error", e);
 		}
 
 		filterChain.doFilter(request, response);

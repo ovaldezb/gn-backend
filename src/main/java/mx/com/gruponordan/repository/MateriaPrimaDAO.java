@@ -9,7 +9,9 @@ import mx.com.gruponordan.model.MateriaPrima;
 
 
 public interface MateriaPrimaDAO extends MongoRepository<MateriaPrima, String> {
-	@Query("{'codigo' : ?0, cantidad : {$gt : ?1}}")
+	@Query("{codigo : ?0, cantidad : {$gt : ?1}}")
 	List<MateriaPrima> findByCodigoAndCantidadMoreThan(String codigo,double cantidad);
+	@Query("{cantidad : {$gt : ?0}}")
+	List<MateriaPrima> findMateriasPrimasGtCantidad(double cantidad);
 	MateriaPrima findByLote(String lote);
 }

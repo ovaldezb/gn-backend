@@ -38,7 +38,7 @@ public class MateriaPrimaController {
 	@ApiOperation(value="Regresa todas las materias primas")
 	@GetMapping()
 	public List<MateriaPrima> getAllMP() {
-		return repoMP.findAll();
+		return repoMP.findMateriasPrimasGtCantidad(0.0);
 	}
 
 	@ApiOperation(value="Obtiene una MP por su ID")

@@ -21,7 +21,7 @@ import mx.com.gruponordan.model.Proveedor;
 import mx.com.gruponordan.repository.ProveedorDAO;
 
 @RestController
-@RequestMapping("/api/prove")
+@RequestMapping("/api/proveedor")
 @CrossOrigin(origins = "http://localhost:3000")
 
 public class ProveedorController {
@@ -33,6 +33,15 @@ public class ProveedorController {
 	@ApiOperation(value="Obtiene la lista de proveedores activos")
 	public ResponseEntity<?> getAllProveedores(){
 		return ResponseEntity.ok(repoprove.findByActivo(true));
+	}
+	
+	@GetMapping("/{proveedor}")
+	public ResponseEntity<?> getClienteNombre(@PathVariable String proveedor){
+		if(proveedor.trim().equals("vacio")) {
+			return ResponseEntity.ok(repoprove.findByActivo(true));
+		}else {
+			return ResponseEntity.ok(repoprove.findByNombreLike(proveedor));
+		}
 	}
 	
 	@PostMapping

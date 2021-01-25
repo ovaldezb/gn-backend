@@ -31,6 +31,15 @@ public class ClienteController {
 		return ResponseEntity.ok(repocliente.findByActivo(true));
 	}
 	
+	@GetMapping("/{nombre}")
+	public ResponseEntity<?> getClienteNombre(@PathVariable String nombre){
+		if(nombre.trim().equals("vacio")) {
+			return ResponseEntity.ok(repocliente.findByActivo(true));
+		}else {
+			return ResponseEntity.ok(repocliente.findByNombreLike(nombre));
+		}	
+	}
+	
 	@PostMapping
 	public ResponseEntity<?> saveCliente(@RequestBody Cliente cliente){
 		return ResponseEntity.ok(repocliente.save(cliente));

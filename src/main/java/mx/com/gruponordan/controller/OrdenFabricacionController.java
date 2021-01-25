@@ -23,10 +23,12 @@ import mx.com.gruponordan.model.Estatus;
 import mx.com.gruponordan.model.MatPrimaOrdFab;
 import mx.com.gruponordan.model.MateriaPrima;
 import mx.com.gruponordan.model.MessageResponse;
+import mx.com.gruponordan.model.OrdenCompra;
 import mx.com.gruponordan.model.OrdenFabricacion;
 import mx.com.gruponordan.model.ProductoTerminado;
 import mx.com.gruponordan.repository.EstatusDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
+import mx.com.gruponordan.repository.OrdenCompraDAO;
 import mx.com.gruponordan.repository.OrdenFabricacionDAO;
 import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 
@@ -36,7 +38,8 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 public class OrdenFabricacionController {
 
 	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
-	
+	private double PERCENT = 100;
+	private double MILILITROS = .001;
 	@Autowired
 	OrdenFabricacionDAO repoOF;
 	
@@ -49,9 +52,17 @@ public class OrdenFabricacionController {
 	@Autowired
 	ProductoTerminadoDAO repoprodterm;
 	
-	@GetMapping()
-	public ResponseEntity<?> getAllOF(){
-		return ResponseEntity.ok(repoOF.findAll());
+	@Autowired
+	OrdenCompraDAO repoOC;
+	
+	@GetMapping("/active/{active}")
+	public ResponseEntity<?> getAllOF(@PathVariable String active){
+		if(active.equals("true")) {
+			return ResponseEntity.ok(repoOF.findAll());
+		}else {
+			return ResponseEntity.ok(repoOF.findByEstatus("TEP"));
+		}
+		
 	}
 	
 	@GetMapping("/{id}")
@@ -70,18 +81,16 @@ public class OrdenFabricacionController {
 		return ResponseEntity.ok(c);
 	}
 	
-	@GetMapping("/validar/{codigo}/{cantidad}/{piezas}")
-	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final String cantidad, @PathVariable final double piezas){
+	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}")
+	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
 		List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
-		double cantReq = Double.parseDouble(cantidad) * piezas;
+		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
 		
 		for(MateriaPrima matprima : lstMateriaPrima){
 			if(matprima.getCantidad() - cantReq > 0 ) {
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
-				matprima.setApartado(cantReq);
-				matprima.setCantidad(matprima.getCantidad() - cantReq);
 				cantReq = 0;
 				lstRspMPOF.add(mpof);
 				lstMPUpdtApartado.add(matprima);
@@ -90,8 +99,6 @@ public class OrdenFabricacionController {
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
 				lstRspMPOF.add(mpof);
 				cantReq -= matprima.getCantidad();
-				matprima.setApartado(matprima.getCantidad());
-				matprima.setCantidad(0.0);
 			}
 		};
 		/* esto aparta las cantidades necesarias para una OF, las descuenta de la Cantidad y las pone en Apartado*/
@@ -108,7 +115,7 @@ public class OrdenFabricacionController {
 				 mpof = new MatPrimaOrdFab(codigo,"", cantReq, codigo, "ERROR", "Materia prima no encontrada");
 			}else if(cantReq > 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
-				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble( df.format(Double.parseDouble(cantidad) * piezas)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq));
+				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format(cantReq)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq));
 			}			
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
@@ -125,15 +132,25 @@ public class OrdenFabricacionController {
 		matPrimOrdFab.stream().forEach(mpof -> {
 			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
 			if(mpf!=null) {
-				mpf.setApartado(mpf.getApartado()-mpof.getCantidad());
+				mpf.setApartado(mpof.getCantidad());
 				mpUpdt.add(mpf);
 			}
 		});
+		
+		Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc());
+		/* Guarda la cantidad a producir, esta se va ir acomulando */
+		if(oc.isPresent()) {
+			OrdenCompra ocu = oc.get();
+			ocu.setPiezasFabricadas(ocu.getPiezasFabricadas() + ordenFabricacion.getPiezas());
+			ocu.setEstatus(Eestatus.TEP);
+			repoOC.save(ocu);
+		}
+		
 		repomatprima.saveAll(mpUpdt);
 		return ResponseEntity.ok(repoOF.save(ordenFabricacion));
 	}
 	
-	@PostMapping("/cancelar")
+	/*@PostMapping("/cancelar")
 	public ResponseEntity<?> cancelarOF(@RequestBody final OrdenFabricacion ordenFabricacion) {
 		List<MatPrimaOrdFab> matPrimOrdFab = ordenFabricacion.getMatprima();
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
@@ -147,21 +164,17 @@ public class OrdenFabricacionController {
 			}
 		});
 		return ResponseEntity.ok(repomatprima.saveAll(mpUpdt));
-	}
+	}*/
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateOF(@PathVariable final String idOrdenFabricacion, @RequestBody final OrdenFabricacion ordenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
 		if(off.isPresent()) {
 			OrdenFabricacion ofu = off.get();
-			ofu.setClave(ordenFabricacion.getClave());
-			ofu.setNombre(ordenFabricacion.getNombre());
 			ofu.setOc(ordenFabricacion.getOc());
 			ofu.setLote(ordenFabricacion.getLote());
 			ofu.setPiezas(ordenFabricacion.getPiezas());
 			ofu.setObservaciones(ordenFabricacion.getObservaciones());
-			ofu.setFechaEntrega(ordenFabricacion.getFechaEntrega());
-			ofu.setFechaFabricacion(ordenFabricacion.getFechaFabricacion());
 			ofu.setMatprima(ordenFabricacion.getMatprima());
 			return ResponseEntity.ok(repoOF.save(ofu));
 		}else {
@@ -175,12 +188,40 @@ public class OrdenFabricacionController {
 	@PutMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
-		if(off.isPresent()) {
+		List<MatPrimaOrdFab> matPrimOrdFab; //= ordenFabricacion.getMatprima();
+		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
+		if(off.isPresent()) {			
 			OrdenFabricacion ofu = off.get();
+			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc());
+			matPrimOrdFab = ofu.getMatprima();
+			for(MatPrimaOrdFab mpof : matPrimOrdFab){
+				MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
+				mpf.setApartado(mpf.getApartado()- mpof.getCantidad());
+				mpf.setCantidad(mpf.getCantidad() - mpof.getCantidad());
+				mpUpdt.add(mpf);
+			}
+			repomatprima.saveAll(mpUpdt);
+			
 			ofu.setEstatus(Eestatus.CMPLT);
-			Estatus estatus = repoestatus.findByCodigo(Eestatus.WTDEL);
-			ProductoTerminado pt = new ProductoTerminado(ofu.getNombre(),ofu.getClave(),ofu.getPiezas(),ofu.getLote(),ofu.getCliente(),ofu.getOc(),ofu.getFechaFabricacion(),ofu.getFechaEntrega(),estatus);
-			repoprodterm.save(pt);
+			Estatus wtdl = repoestatus.findByCodigo(Eestatus.WTDEL);
+			if(oc.isPresent()) {
+				OrdenCompra ocu = oc.get();
+				ocu.setPiezasCompletadas(ocu.getPiezasCompletadas() + ofu.getPiezas());
+				if(ocu.getPiezasCompletadas() == ocu.getPiezas()) {
+					ocu.setEstatus(Eestatus.CMPLT);
+				}
+				repoOC.save(ocu);
+				ProductoTerminado pt = new ProductoTerminado(wtdl,ocu.getNombreProducto(),
+										ofu.getOc(),
+										ofu.getLote(),
+										ofu.getPiezas(),
+										ocu.getFechaFabricacion(),
+										ocu.getFechaEntrega(),
+										ofu.getNoConsecutivo(),
+										ocu.getCliente(), 
+										ocu.getClave());
+				repoprodterm.save(pt);
+			}
 			return ResponseEntity.ok(repoOF.save(ofu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

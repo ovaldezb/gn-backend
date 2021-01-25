@@ -8,4 +8,5 @@ import mx.com.gruponordan.model.Cliente;
 
 public interface ClienteDAO extends MongoRepository<Cliente, String> {
 	List<Cliente> findByActivo(boolean activo);
+	List<Cliente> findByNombreLike(String nombre);
 }

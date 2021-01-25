@@ -28,7 +28,7 @@ import mx.com.gruponordan.security.service.UserDetailsServiceImpl;
 		prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	//private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+	private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
 	@Autowired
 	UserDetailsServiceImpl userDetailsService;
@@ -65,9 +65,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authenticationEntryPoint(unauthorizedHandler)
 				.and()
 				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				/* Seccion para restringir acceso, deshabilitado para pruebas*/
-				/*.and()
+				.and()
 				.authorizeRequests()
 				.antMatchers("/api/auth/**").permitAll()
 				.antMatchers("/api/test/**").permitAll()
@@ -85,8 +85,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/ordenfab/**").permitAll()
 				.antMatchers("/api/utils/**").permitAll()
 				.antMatchers("/api/ordencompra/**").permitAll()
+				.antMatchers("/api/cliente/**").permitAll()
+				.antMatchers("/api/proveedor/**").permitAll()
+				//.antMatchers("/swagger/**").permitAll()
+				//.antMatchers("/**").permitAll()	
 				.anyRequest()
-				.authenticated();*/
+				.authenticated();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 

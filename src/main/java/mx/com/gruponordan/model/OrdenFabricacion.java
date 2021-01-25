@@ -1,12 +1,9 @@
 package mx.com.gruponordan.model;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Document(collection = "orden_fabriacion")
 public class OrdenFabricacion {
@@ -14,21 +11,13 @@ public class OrdenFabricacion {
 	@Id
 	private String id;
 	private String oc;
-	private String nombre;
-	private String clave;
-	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
-	private Date fechaFabricacion;
-	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
-	private Date fechaEntrega;
 	private long noConsecutivo;
 	private String lote;
 	private int piezas;
 	private String observaciones;
-	private String cliente;
 	private List<MatPrimaOrdFab> matprima;
 	private Eestatus estatus;
+	private String nombre;
 	
 	public String getId() {
 		return id;
@@ -36,36 +25,11 @@ public class OrdenFabricacion {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
 	public String getOc() {
 		return oc;
 	}
 	public void setOc(String oc) {
 		this.oc = oc;
-	}
-	public String getNombre() {
-		return nombre;
-	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-	public String getClave() {
-		return clave;
-	}
-	public void setClave(String clave) {
-		this.clave = clave;
-	}
-	public Date getFechaFabricacion() {
-		return fechaFabricacion;
-	}
-	public void setFechaFabricacion(Date fechaFabricacion) {
-		this.fechaFabricacion = fechaFabricacion;
-	}
-	public Date getFechaEntrega() {
-		return fechaEntrega;
-	}
-	public void setFechaEntrega(Date fechaEntrega) {
-		this.fechaEntrega = fechaEntrega;
 	}
 	public long getNoConsecutivo() {
 		return noConsecutivo;
@@ -91,12 +55,6 @@ public class OrdenFabricacion {
 	public void setObservaciones(String observaciones) {
 		this.observaciones = observaciones;
 	}
-	public String getCliente() {
-		return cliente;
-	}
-	public void setCliente(String cliente) {
-		this.cliente = cliente;
-	}
 	public List<MatPrimaOrdFab> getMatprima() {
 		return matprima;
 	}
@@ -109,8 +67,11 @@ public class OrdenFabricacion {
 	public void setEstatus(Eestatus estatus) {
 		this.estatus = estatus;
 	}
-
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 	
-	
-
 }

@@ -19,7 +19,8 @@ public class MateriaPrima {
 	@DBRef
 	private UnidadMedida unidad;
 	private String codigo;
-	private String proveedor;
+	@DBRef
+	private Proveedor proveedor;
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
 	private Date fechaEntrada;
@@ -71,10 +72,10 @@ public class MateriaPrima {
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
-	public String getProveedor() {
+	public Proveedor getProveedor() {
 		return proveedor;
 	}
-	public void setProveedor(String proveedor) {
+	public void setProveedor(Proveedor proveedor) {
 		this.proveedor = proveedor;
 	}
 	public Date getFechaEntrada() {

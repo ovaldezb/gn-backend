@@ -26,9 +26,16 @@ public class OrdenCompra {
 	private int piezas;
 	private String observaciones;
 	//Este va a cambiar a un ID de cliente
-	private String cliente;
+	@DBRef
+	private Cliente cliente;
 	private Eestatus estatus;
 	private double presentacion;
+	//piezas pendientes de fabricar
+	private double piezasFabricadas;
+	//piezas que ya se han fabriacado
+	private double piezasCompletadas;
+	//Piezas que se han entregado;
+	private double piezasEntregadas;
 	
 	public String getId() {
 		return id;
@@ -78,10 +85,10 @@ public class OrdenCompra {
 	public void setObservaciones(String observaciones) {
 		this.observaciones = observaciones;
 	}
-	public String getCliente() {
+	public Cliente getCliente() {
 		return cliente;
 	}
-	public void setCliente(String cliente) {
+	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
 	public Eestatus getEstatus() {
@@ -95,6 +102,24 @@ public class OrdenCompra {
 	}
 	public void setPresentacion(double presentacion) {
 		this.presentacion = presentacion;
+	}
+	public double getPiezasFabricadas() {
+		return piezasFabricadas;
+	}
+	public void setPiezasFabricadas(double piezasFabricadas) {
+		this.piezasFabricadas = piezasFabricadas;
+	}
+	public double getPiezasCompletadas() {
+		return piezasCompletadas;
+	}
+	public void setPiezasCompletadas(double piezasCompletadas) {
+		this.piezasCompletadas = piezasCompletadas;
+	}
+	public double getPiezasEntregadas() {
+		return piezasEntregadas;
+	}
+	public void setPiezasEntregadas(double piezasEntregadas) {
+		this.piezasEntregadas = piezasEntregadas;
 	}
 	
 }

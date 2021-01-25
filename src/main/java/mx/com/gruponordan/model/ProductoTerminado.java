@@ -20,7 +20,7 @@ public class ProductoTerminado {
 	private String clave;
 	private double piezas;
 	private String lote;
-	private String cliente;
+	private Cliente cliente;
 	private String oc;
 	private String comentario;
 	@JsonFormat
@@ -29,21 +29,20 @@ public class ProductoTerminado {
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date fechaEntrega;
+	private long noConsecutivo;
 	
-	
-	
-	public ProductoTerminado(String nombre, String clave, double piezas, String lote, String cliente,
-			String oc, Date fechaFabricacion, Date fechaEntrega,Estatus estatus) {
+	public ProductoTerminado(Estatus estatus,String nombre, String oc, String lote, double piezas, Date fechaFabricacion, Date fechaEntrega, long noConsecutivo, Cliente cliente, String clave ) {
 		super();
 		this.estatus = estatus;
 		this.nombre = nombre;
-		this.clave = clave;
-		this.piezas = piezas;
-		this.lote = lote;
-		this.cliente = cliente;
 		this.oc = oc;
+		this.lote = lote;
+		this.piezas = piezas;
 		this.fechaFabricacion = fechaFabricacion;
 		this.fechaEntrega = fechaEntrega;
+		this.noConsecutivo = noConsecutivo;
+		this.cliente = cliente;
+		this.clave = clave;
 	}
 	public String getId() {
 		return id;
@@ -81,10 +80,10 @@ public class ProductoTerminado {
 	public void setLote(String lote) {
 		this.lote = lote;
 	}
-	public String getCliente() {
+	public Cliente getCliente() {
 		return cliente;
 	}
-	public void setCliente(String cliente) {
+	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
 	public String getOc() {
@@ -110,6 +109,12 @@ public class ProductoTerminado {
 	}
 	public void setFechaEntrega(Date fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
+	}
+	public long getNoConsecutivo() {
+		return noConsecutivo;
+	}
+	public void setNoConsecutivo(long noConsecutivo) {
+		this.noConsecutivo = noConsecutivo;
 	}
 	@Override
 	public String toString() {

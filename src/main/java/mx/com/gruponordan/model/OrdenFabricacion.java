@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "orden_fabriacion")
+@Document(collection = "orden_fabricacion")
 public class OrdenFabricacion {
 	
 	@Id
@@ -17,7 +17,7 @@ public class OrdenFabricacion {
 	private String observaciones;
 	private List<MatPrimaOrdFab> matprima;
 	private Eestatus estatus;
-	private String nombre;
+	
 	
 	public String getId() {
 		return id;
@@ -67,11 +67,6 @@ public class OrdenFabricacion {
 	public void setEstatus(Eestatus estatus) {
 		this.estatus = estatus;
 	}
-	public String getNombre() {
-		return nombre;
-	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+	
 	
 }

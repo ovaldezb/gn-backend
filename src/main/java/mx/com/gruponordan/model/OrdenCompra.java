@@ -14,7 +14,8 @@ public class OrdenCompra {
 	@Id
 	private String id;
 	private String oc;
-	private String nombreProducto;
+	@DBRef
+	private ProductoDisponible producto;
 	private String clave;
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
@@ -49,11 +50,12 @@ public class OrdenCompra {
 	public void setOc(String oc) {
 		this.oc = oc;
 	}
-	public String getNombreProducto() {
-		return nombreProducto;
+	
+	public ProductoDisponible getProducto() {
+		return producto;
 	}
-	public void setNombreProducto(String nombreProducto) {
-		this.nombreProducto = nombreProducto;
+	public void setProducto(ProductoDisponible producto) {
+		this.producto = producto;
 	}
 	public String getClave() {
 		return clave;

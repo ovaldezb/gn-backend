@@ -16,7 +16,7 @@ public class ProductoTerminado {
 	private String id;
 	@DBRef
 	private Estatus estatus;
-	private String nombre;
+	private ProductoDisponible producto;
 	private String clave;
 	private double piezas;
 	private String lote;
@@ -30,11 +30,15 @@ public class ProductoTerminado {
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date fechaEntrega;
 	private long noConsecutivo;
+	private String noRemision;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date fechaRemision;
 	
-	public ProductoTerminado(Estatus estatus,String nombre, String oc, String lote, double piezas, Date fechaFabricacion, Date fechaEntrega, long noConsecutivo, Cliente cliente, String clave ) {
+	public ProductoTerminado(Estatus estatus,ProductoDisponible producto, String oc, String lote, double piezas, Date fechaFabricacion, Date fechaEntrega, long noConsecutivo, Cliente cliente, String clave ) {
 		super();
 		this.estatus = estatus;
-		this.nombre = nombre;
+		this.producto = producto;
 		this.oc = oc;
 		this.lote = lote;
 		this.piezas = piezas;
@@ -56,11 +60,12 @@ public class ProductoTerminado {
 	public void setEstatus(Estatus estatus) {
 		this.estatus = estatus;
 	}
-	public String getNombre() {
-		return nombre;
+	
+	public ProductoDisponible getProducto() {
+		return producto;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setProducto(ProductoDisponible producto) {
+		this.producto = producto;
 	}
 	public String getClave() {
 		return clave;
@@ -116,12 +121,19 @@ public class ProductoTerminado {
 	public void setNoConsecutivo(long noConsecutivo) {
 		this.noConsecutivo = noConsecutivo;
 	}
-	@Override
-	public String toString() {
-		return "ProductoTerminado [id=" + id + ", estatus=" + estatus + ", nombre=" + nombre + ", clave=" + clave
-				+ ", piezas=" + piezas + ", lote=" + lote + ", cliente=" + cliente + ", oc=" + oc + ", comentario="
-				+ comentario + ", fechaFabricacion=" + fechaFabricacion + ", fechaEntrega=" + fechaEntrega + "]";
+	public String getNoRemision() {
+		return noRemision;
 	}
+	public void setNoRemision(String noRemision) {
+		this.noRemision = noRemision;
+	}
+	public Date getFechaRemision() {
+		return fechaRemision;
+	}
+	public void setFechaRemision(Date fechaRemision) {
+		this.fechaRemision = fechaRemision;
+	}
+	
 	
 	
 }

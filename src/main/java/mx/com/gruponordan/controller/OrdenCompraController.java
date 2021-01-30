@@ -53,11 +53,10 @@ public class OrdenCompraController {
 	
 	@GetMapping("/oc/{ordenCompra}")
 	public ResponseEntity<?> getOCByNumber(@PathVariable final String ordenCompra){
-		Optional<OrdenCompra> oc = repoOC.findByOc(ordenCompra);
-		if(oc.isPresent()) {
-			return ResponseEntity.ok(oc);
+		if(ordenCompra.equals("vacio")) {
+			return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
 		}else {
-			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));
+			return ResponseEntity.ok(repoOC.findByOcLike(ordenCompra));
 		}
 	}
 	
@@ -76,7 +75,7 @@ public class OrdenCompraController {
 			ocu.setCliente(ordenCompra.getCliente());
 			ocu.setFechaEntrega(ordenCompra.getFechaEntrega());
 			ocu.setFechaFabricacion(ordenCompra.getFechaFabricacion());
-			ocu.setNombreProducto(ordenCompra.getNombreProducto());
+			ocu.setProducto(ordenCompra.getProducto());
 			ocu.setObservaciones(ordenCompra.getObservaciones());
 			ocu.setOc(ordenCompra.getOc());
 			ocu.setPresentacion(ordenCompra.getPresentacion());

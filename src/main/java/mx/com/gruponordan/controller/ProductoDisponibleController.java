@@ -54,6 +54,7 @@ public class ProductoDisponibleController {
 			prdDispUpdt.setClave(prddisp.getClave());
 			prdDispUpdt.setNombre(prddisp.getNombre());
 			prdDispUpdt.setMateriaPrimaUsada(prddisp.getMateriaPrimaUsada());
+			prdDispUpdt.setProdxcaja(prddisp.getProdxcaja());
 			return ResponseEntity.ok(prddisprepo.save(prdDispUpdt));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

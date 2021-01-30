@@ -207,11 +207,11 @@ public class OrdenFabricacionController {
 			if(oc.isPresent()) {
 				OrdenCompra ocu = oc.get();
 				ocu.setPiezasCompletadas(ocu.getPiezasCompletadas() + ofu.getPiezas());
-				if(ocu.getPiezasCompletadas() == ocu.getPiezas()) {
+				/*if(ocu.getPiezasCompletadas() == ocu.getPiezas()) {
 					ocu.setEstatus(Eestatus.CMPLT);
-				}
+				}*/
 				repoOC.save(ocu);
-				ProductoTerminado pt = new ProductoTerminado(wtdl,ocu.getNombreProducto(),
+				ProductoTerminado pt = new ProductoTerminado(wtdl,ocu.getProducto(),
 										ofu.getOc(),
 										ofu.getLote(),
 										ofu.getPiezas(),
@@ -231,6 +231,12 @@ public class OrdenFabricacionController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteOF(@PathVariable("id") final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
+		Optional<OrdenCompra> oc = repoOC.findByOc(off.get().getOc());
+		if(oc.isPresent()) {
+			OrdenCompra ocu = oc.get();
+			ocu.setPiezasFabricadas(ocu.getPiezasFabricadas() - off.get().getPiezas());
+			repoOC.save(ocu);
+		}
 		if(off.isPresent()) {
 			repoOF.deleteById(idOrdenFabricacion);
 			return ResponseEntity.ok().body(new MessageResponse("status:success"));

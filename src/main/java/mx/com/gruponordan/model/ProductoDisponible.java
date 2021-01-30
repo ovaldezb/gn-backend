@@ -12,6 +12,7 @@ public class ProductoDisponible {
 	private String clave;
 	private String tipo;
 	private MateriaPrimaUsada[] materiaPrimaUsada;
+	private double prodxcaja;
 	
 	public String getId() {
 		return id;
@@ -42,5 +43,11 @@ public class ProductoDisponible {
 	}
 	public void setMateriaPrimaUsada(MateriaPrimaUsada[] materiaPrimaUsada) {
 		this.materiaPrimaUsada = materiaPrimaUsada;
+	}
+	public double getProdxcaja() {
+		return prodxcaja;
+	}
+	public void setProdxcaja(double prodxcaja) {
+		this.prodxcaja = prodxcaja;
 	}
 }

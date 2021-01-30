@@ -73,7 +73,7 @@ public class ProductoTerminadoController {
 	 * Completa un PT, poniendo el estatus en Entregado
 	 * Cuando las piezas entregadas sean iguales a las piezas totales, se cierra la OC
 	 * */
-	@PutMapping("/{id}")
+	@PutMapping("/dlvr/{id}")
 	public ResponseEntity<?> updatePT(@PathVariable("id") String id,@RequestBody ProductoTerminado prodterm){
 		Optional<ProductoTerminado> ptf = repoPT.findById(id);
 		Estatus estatusPt = repoestatus.findByCodigo(Eestatus.DELVRD);
@@ -81,7 +81,7 @@ public class ProductoTerminadoController {
 			ProductoTerminado ptu = ptf.get();
 			ptu.setEstatus(estatusPt);		
 			ptu.setComentario(prodterm.getComentario());
-			/*Optional<OrdenCompra> oc = repoOC.findByOc(ptu.getOc());
+			Optional<OrdenCompra> oc = repoOC.findByOc(ptu.getOc());
 			if(oc.isPresent()) {
 				OrdenCompra ocu = oc.get();
 				ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
@@ -90,7 +90,25 @@ public class ProductoTerminadoController {
 				}
 				repoOC.save(ocu);
 				
-			}*/
+			}
+			return ResponseEntity.ok(repoPT.save(ptu));
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo actualizar"));
+		}
+	}
+	
+	/*
+	 * Completa un PT, poniendo el estatus en Entregado
+	 * Cuando las piezas entregadas sean iguales a las piezas totales, se cierra la OC
+	 * */
+	@PutMapping("/updnrem/{id}")
+	public ResponseEntity<?> updatePTNoRev(@PathVariable("id") String id,@RequestBody ProductoTerminado prodterm){
+		Optional<ProductoTerminado> ptf = repoPT.findById(id);
+		//Estatus estatusPt = repoestatus.findByCodigo(Eestatus.DELVRD);
+		if(ptf.isPresent()) {
+			ProductoTerminado ptu = ptf.get();
+			ptu.setNoRemision(prodterm.getNoRemision());	
+			ptu.setFechaRemision(prodterm.getFechaRemision());
 			return ResponseEntity.ok(repoPT.save(ptu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo actualizar"));

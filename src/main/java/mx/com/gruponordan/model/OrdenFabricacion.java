@@ -1,9 +1,12 @@
 package mx.com.gruponordan.model;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Document(collection = "orden_fabricacion")
 public class OrdenFabricacion {
@@ -17,6 +20,9 @@ public class OrdenFabricacion {
 	private String observaciones;
 	private List<MatPrimaOrdFab> matprima;
 	private Eestatus estatus;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date fechaFin;
 	
 	
 	public String getId() {
@@ -58,6 +64,12 @@ public class OrdenFabricacion {
 	public List<MatPrimaOrdFab> getMatprima() {
 		return matprima;
 	}
+	public Date getFechaFin() {
+		return fechaFin;
+	}
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
 	public void setMatprima(List<MatPrimaOrdFab> matprima) {
 		this.matprima = matprima;
 	}
@@ -67,6 +79,13 @@ public class OrdenFabricacion {
 	public void setEstatus(Eestatus estatus) {
 		this.estatus = estatus;
 	}
+	@Override
+	public String toString() {
+		return "OrdenFabricacion [id=" + id + ", oc=" + oc + ", noConsecutivo=" + noConsecutivo + ", lote=" + lote
+				+ ", piezas=" + piezas + ", observaciones=" + observaciones + ", matprima=" + matprima + ", estatus="
+				+ estatus + "]";
+	}
+	
 	
 	
 }

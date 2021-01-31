@@ -37,6 +37,7 @@ public class OrdenCompra {
 	private double piezasCompletadas;
 	//Piezas que se han entregado;
 	private double piezasEntregadas;
+	private String tipoPresentacion;
 	
 	public String getId() {
 		return id;
@@ -122,6 +123,12 @@ public class OrdenCompra {
 	}
 	public void setPiezasEntregadas(double piezasEntregadas) {
 		this.piezasEntregadas = piezasEntregadas;
+	}
+	public String getTipoPresentacion() {
+		return tipoPresentacion;
+	}
+	public void setTipoPresentacion(String tipoPresentacion) {
+		this.tipoPresentacion = tipoPresentacion;
 	}
 	
 }

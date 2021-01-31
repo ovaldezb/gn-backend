@@ -4,7 +4,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,7 +40,7 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 @CrossOrigin(origins = "http://localhost:3000")
 public class OrdenFabricacionController {
 
-	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
+	private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
 	private double PERCENT = 100;
 	private double MILILITROS = .001;
 	@Autowired
@@ -183,16 +186,16 @@ public class OrdenFabricacionController {
 	}
 	
 	/*
+	 * @Get, porque no recibe parametros en el body
 	 * Completa una OF y genera un PT
 	 */
-	@PutMapping("/complete/{idOrdenFabricacion}")
+	@GetMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
 		List<MatPrimaOrdFab> matPrimOrdFab; //= ordenFabricacion.getMatprima();
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		if(off.isPresent()) {			
 			OrdenFabricacion ofu = off.get();
-			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc());
 			matPrimOrdFab = ofu.getMatprima();
 			for(MatPrimaOrdFab mpof : matPrimOrdFab){
 				MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
@@ -202,14 +205,11 @@ public class OrdenFabricacionController {
 			}
 			repomatprima.saveAll(mpUpdt);
 			
-			ofu.setEstatus(Eestatus.CMPLT);
+			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc());
 			Estatus wtdl = repoestatus.findByCodigo(Eestatus.WTDEL);
 			if(oc.isPresent()) {
 				OrdenCompra ocu = oc.get();
 				ocu.setPiezasCompletadas(ocu.getPiezasCompletadas() + ofu.getPiezas());
-				/*if(ocu.getPiezasCompletadas() == ocu.getPiezas()) {
-					ocu.setEstatus(Eestatus.CMPLT);
-				}*/
 				repoOC.save(ocu);
 				ProductoTerminado pt = new ProductoTerminado(wtdl,ocu.getProducto(),
 										ofu.getOc(),
@@ -221,7 +221,10 @@ public class OrdenFabricacionController {
 										ocu.getCliente(), 
 										ocu.getClave());
 				repoprodterm.save(pt);
+				
 			}
+			ofu.setEstatus(Eestatus.CMPLT);
+			ofu.setFechaFin(new Date());
 			return ResponseEntity.ok(repoOF.save(ofu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

@@ -133,6 +133,14 @@ public class ProductoTerminado {
 	public void setFechaRemision(Date fechaRemision) {
 		this.fechaRemision = fechaRemision;
 	}
+	@Override
+	public String toString() {
+		return "ProductoTerminado [id=" + id + ", estatus=" + estatus + ", producto=" + producto + ", clave=" + clave
+				+ ", piezas=" + piezas + ", lote=" + lote + ", cliente=" + cliente + ", oc=" + oc + ", comentario="
+				+ comentario + ", fechaFabricacion=" + fechaFabricacion + ", fechaEntrega=" + fechaEntrega
+				+ ", noConsecutivo=" + noConsecutivo + ", noRemision=" + noRemision + ", fechaRemision=" + fechaRemision
+				+ "]";
+	}
 	
 	
 	

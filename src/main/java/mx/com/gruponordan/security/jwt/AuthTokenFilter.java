@@ -36,7 +36,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			//System.out.println(request.getRequestURI());
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 				String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -45,14 +44,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 						userDetails, null, userDetails.getAuthorities());
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-			}/*else if(!request.getRequestURI().toString().equals("/api/auth/signin")){	
+			}else if(!request.getRequestURI().toString().equals("/api/auth/signin")){	
 				response.sendError(HttpStatus.UNAUTHORIZED.value());
-			}*/
-			else if(!request.getRequestURI().toString().equals("/api/auth/signin") && !request.getRequestURI().toString().equals("/v2/api-docs") 
+			}
+			/*else if(!request.getRequestURI().toString().equals("/api/auth/signin") && !request.getRequestURI().toString().equals("/v2/api-docs") 
 					&& !request.getRequestURI().toString().contains("swagger") && !request.getRequestURI().toString().contains("/webjars") ){
 				
 				response.sendError(HttpStatus.UNAUTHORIZED.value());
-			}
+			}*/
 			
 		} catch (ExpiredJwtException e) {
 			logger.error("Error", e);

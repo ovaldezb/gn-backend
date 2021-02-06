@@ -22,7 +22,8 @@ import mx.com.gruponordan.repository.OrdenCompraDAO;
 
 @RestController
 @RequestMapping("/api/ordencompra")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class OrdenCompraController {
 
 	@Autowired

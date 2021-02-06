@@ -20,7 +20,8 @@ import mx.com.gruponordan.repository.ClienteDAO;
 
 @RestController
 @RequestMapping("/api/cliente")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ClienteController {
 
 	@Autowired

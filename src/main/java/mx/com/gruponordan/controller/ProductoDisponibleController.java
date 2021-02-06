@@ -20,7 +20,8 @@ import mx.com.gruponordan.repository.ProdDispDAO;
 
 @RestController
 @RequestMapping("/api/prodisp")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ProductoDisponibleController {
 	
 	@Autowired

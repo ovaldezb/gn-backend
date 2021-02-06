@@ -26,7 +26,8 @@ import mx.com.gruponordan.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/bitacora")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class BitacoraController {
 	//private static Logger logger = LoggerFactory.getLogger(Bitacora.class);
 	@Autowired

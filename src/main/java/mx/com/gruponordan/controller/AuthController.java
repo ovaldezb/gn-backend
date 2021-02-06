@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.validation.Valid;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import mx.com.gruponordan.model.JwtResponse;
 import mx.com.gruponordan.model.LoginRequest;
 import mx.com.gruponordan.model.MessageResponse;
@@ -29,12 +31,9 @@ import mx.com.gruponordan.repository.UserRepository;
 import mx.com.gruponordan.security.jwt.JwtUtils;
 import mx.com.gruponordan.security.service.UserDetailsImpl;
 
-//@CrossOrigin(origins = "*", maxAge = 3600)
-
-
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
 	//private static Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -64,10 +63,7 @@ public class AuthController {
 			String jwt = jwtUtils.generateJwtToken(authentication);
 
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			/*
-			 * List<String> roles = userDetails.getAuthorities().stream().map(item ->
-			 * item.getAuthority()) .collect(Collectors.toList());
-			 */
+			
 
 			if (userDetails.isActivo()) {
 				
@@ -77,6 +73,7 @@ public class AuthController {
 				return ResponseEntity.badRequest().body(new MessageResponse("Error:no activo"));
 			}
 		} catch (AuthenticationException aex) {
+			System.out.println(aex);
 			return new ResponseEntity<>( "error:Bad Credentias",HttpStatus.UNAUTHORIZED);
 		}
 
@@ -92,29 +89,7 @@ public class AuthController {
 		// Create new user's account
 		User user = new User(signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()), signUpRequest.isActivo(), signUpRequest.getNombre(),
 				signUpRequest.getApellido(), signUpRequest.getArea());
-		//logger.info(signUpRequest.toString());
 		
-		/*
-		 * Role[] strRoles = signUpRequest.getRoles();
-		 * Set<Role> roles = new HashSet<>();
-		 * if (strRoles == null) { Role userRole =
-		 * roleRepository.findByName(ERole.ROLE_USER) .orElseThrow(() -> new
-		 * RuntimeException("Error: Role is not found.")); roles.add(userRole); } else {
-		 * for (Role role : strRoles) { switch (role.getName()) { case ROLE_ADMIN: Role
-		 * adminRole = roleRepository.findByName(ERole.ROLE_ADMIN) .orElseThrow(() ->
-		 * new RuntimeException("Error: Role is not found.")); roles.add(adminRole);
-		 * 
-		 * break; case ROLE_MODERATOR: Role modRole =
-		 * roleRepository.findByName(ERole.ROLE_MODERATOR) .orElseThrow(() -> new
-		 * RuntimeException("Error: Role is not found.")); roles.add(modRole);
-		 * 
-		 * break; default: Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-		 * .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-		 * roles.add(userRole); } }
-		 * 
-		 * }
-		 */
-		//user.setRoles((Role[]) roles.toArray());
 		User userSaved = userRepository.save(user);
 		if (userSaved != null) {
 			return ResponseEntity.ok(userSaved);

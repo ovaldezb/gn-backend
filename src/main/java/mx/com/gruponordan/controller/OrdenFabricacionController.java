@@ -2,12 +2,10 @@ package mx.com.gruponordan.controller;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,10 +35,11 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 
 @RestController
 @RequestMapping("/api/ordenfab")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class OrdenFabricacionController {
 
-	private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
+	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
 	private double PERCENT = 100;
 	private double MILILITROS = .001;
 	@Autowired

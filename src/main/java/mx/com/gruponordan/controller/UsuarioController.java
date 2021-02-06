@@ -22,7 +22,8 @@ import mx.com.gruponordan.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/usuario")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
 	@Autowired

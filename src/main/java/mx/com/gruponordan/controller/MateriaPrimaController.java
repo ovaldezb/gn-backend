@@ -24,7 +24,7 @@ import mx.com.gruponordan.repository.MateriaPrimaDAO;
 
 @RestController
 @RequestMapping("/api/matprima")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class MateriaPrimaController {
 
 	//private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);

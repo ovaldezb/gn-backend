@@ -1,7 +1,5 @@
 package mx.com.gruponordan.security.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,13 +20,10 @@ import mx.com.gruponordan.security.service.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-		// securedEnabled = true,
-		// jsr250Enabled = true,
-		prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+	//private Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
 	@Autowired
 	UserDetailsServiceImpl userDetailsService;
@@ -87,11 +82,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/ordencompra/**").permitAll()
 				.antMatchers("/api/cliente/**").permitAll()
 				.antMatchers("/api/proveedor/**").permitAll()
-				.antMatchers("/swagger/**").permitAll()
-				.antMatchers("/**").permitAll()	
+				//.antMatchers("/swagger/**").permitAll()
+				//.antMatchers("/**").permitAll()	
 				.anyRequest()
 				.authenticated();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
+	
+	
 
 }

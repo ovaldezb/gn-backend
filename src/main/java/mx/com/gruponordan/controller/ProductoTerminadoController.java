@@ -25,7 +25,8 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 
 @RestController
 @RequestMapping("/api/prodterm")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ProductoTerminadoController {
 
 	@Autowired

@@ -15,7 +15,8 @@ import mx.com.gruponordan.repository.MatPrimaDispDAO;
 
 @RestController
 @RequestMapping("/api/matprimdisp")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class MateriaPrimaDisponibleController {
 	
 	@Autowired

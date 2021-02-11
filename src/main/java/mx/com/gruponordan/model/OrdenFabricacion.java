@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,7 +14,8 @@ public class OrdenFabricacion {
 	
 	@Id
 	private String id;
-	private String oc;
+	@DBRef
+	private OrdenCompra oc;
 	private long noConsecutivo;
 	private String lote;
 	private int piezas;
@@ -31,10 +33,10 @@ public class OrdenFabricacion {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getOc() {
+	public OrdenCompra getOc() {
 		return oc;
 	}
-	public void setOc(String oc) {
+	public void setOc(OrdenCompra oc) {
 		this.oc = oc;
 	}
 	public long getNoConsecutivo() {
@@ -42,12 +44,6 @@ public class OrdenFabricacion {
 	}
 	public void setNoConsecutivo(long noConsecutivo) {
 		this.noConsecutivo = noConsecutivo;
-	}
-	public String getLote() {
-		return lote;
-	}
-	public void setLote(String lote) {
-		this.lote = lote;
 	}
 	public int getPiezas() {
 		return piezas;
@@ -79,9 +75,15 @@ public class OrdenFabricacion {
 	public void setEstatus(Eestatus estatus) {
 		this.estatus = estatus;
 	}
+	public String getLote() {
+		return lote;
+	}
+	public void setLote(String lote) {
+		this.lote = lote;
+	}
 	@Override
 	public String toString() {
-		return "OrdenFabricacion [id=" + id + ", oc=" + oc + ", noConsecutivo=" + noConsecutivo + ", lote=" + lote
+		return "OrdenFabricacion [id=" + id + ", oc=" + oc + ", noConsecutivo=" + noConsecutivo 
 				+ ", piezas=" + piezas + ", observaciones=" + observaciones + ", matprima=" + matprima + ", estatus="
 				+ estatus + "]";
 	}

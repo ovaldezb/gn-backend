@@ -1,5 +1,6 @@
 package mx.com.gruponordan.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,6 @@ import mx.com.gruponordan.repository.OrdenCompraDAO;
 
 @RestController
 @RequestMapping("/api/ordencompra")
-//@CrossOrigin(origins = "http://localhost:3000")
 @CrossOrigin(origins = "*")
 public class OrdenCompraController {
 
@@ -57,7 +57,12 @@ public class OrdenCompraController {
 		if(ordenCompra.equals("vacio")) {
 			return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
 		}else {
-			return ResponseEntity.ok(repoOC.findByOcLike(ordenCompra));
+			List<OrdenCompra> ordenescompra = repoOC.findByOcAndAprobado(ordenCompra,true);
+			if(!ordenescompra.isEmpty()) {
+				return ResponseEntity.ok(ordenescompra);
+			}else {
+				return ResponseEntity.badRequest().body(new MessageResponse("No se encontro"));
+			}	
 		}
 	}
 	
@@ -80,6 +85,8 @@ public class OrdenCompraController {
 			ocu.setObservaciones(ordenCompra.getObservaciones());
 			ocu.setOc(ordenCompra.getOc());
 			ocu.setPresentacion(ordenCompra.getPresentacion());
+			ocu.setAprobado(ordenCompra.isAprobado());
+			ocu.setEstatus(ordenCompra.getEstatus());
 			return ResponseEntity.ok(repoOC.save(ocu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error"));

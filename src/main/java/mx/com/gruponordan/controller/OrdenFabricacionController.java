@@ -42,6 +42,7 @@ public class OrdenFabricacionController {
 	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
 	private double PERCENT = 100;
 	private double MILILITROS = .001;
+	private String AGUA = "AGUA001";
 	@Autowired
 	OrdenFabricacionDAO repoOF;
 	
@@ -77,12 +78,6 @@ public class OrdenFabricacionController {
 		}
 	}
 	
-	@GetMapping("/count")
-	public ResponseEntity<?> getMaxOF(){
-		Counter c = new Counter(repoOF.count());
-		return ResponseEntity.ok(c);
-	}
-	
 	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}")
 	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
@@ -91,18 +86,21 @@ public class OrdenFabricacionController {
 		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
 		
 		for(MateriaPrima matprima : lstMateriaPrima){
-			if(matprima.getCantidad() - cantReq > 0 ) {
-				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
-				cantReq = 0;
-				lstRspMPOF.add(mpof);
-				lstMPUpdtApartado.add(matprima);
-				break;
-			}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
-				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
-				lstRspMPOF.add(mpof);
-				cantReq -= matprima.getCantidad();
+			if(!matprima.getCodigo().equals(AGUA)) {
+				if(matprima.getCantidad() - cantReq > 0 ) {
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
+					cantReq = 0;
+					lstRspMPOF.add(mpof);
+					lstMPUpdtApartado.add(matprima);
+					break;
+				}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
+					lstRspMPOF.add(mpof);
+					cantReq -= matprima.getCantidad();
+				}
 			}
-		};
+		}
+		
 		/* esto aparta las cantidades necesarias para una OF, las descuenta de la Cantidad y las pone en Apartado*/
 		if(!lstMPUpdtApartado.isEmpty()) {
 			repomatprima.saveAll(lstMPUpdtApartado);
@@ -131,7 +129,7 @@ public class OrdenFabricacionController {
 		List<MatPrimaOrdFab> matPrimOrdFab = ordenFabricacion.getMatprima();
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		
-		matPrimOrdFab.stream().forEach(mpof -> {
+		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
 			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
 			if(mpf!=null) {
 				mpf.setApartado(mpof.getCantidad());
@@ -139,7 +137,7 @@ public class OrdenFabricacionController {
 			}
 		});
 		
-		Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc());
+		Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc().getOc());
 		/* Guarda la cantidad a producir, esta se va ir acomulando */
 		if(oc.isPresent()) {
 			OrdenCompra ocu = oc.get();
@@ -174,7 +172,7 @@ public class OrdenFabricacionController {
 		if(off.isPresent()) {
 			OrdenFabricacion ofu = off.get();
 			ofu.setOc(ordenFabricacion.getOc());
-			ofu.setLote(ordenFabricacion.getLote());
+			//ofu.setLote(ordenFabricacion.getLote());
 			ofu.setPiezas(ordenFabricacion.getPiezas());
 			ofu.setObservaciones(ordenFabricacion.getObservaciones());
 			ofu.setMatprima(ordenFabricacion.getMatprima());
@@ -204,15 +202,15 @@ public class OrdenFabricacionController {
 			}
 			repomatprima.saveAll(mpUpdt);
 			
-			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc());
+			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc().getOc());
 			Estatus wtdl = repoestatus.findByCodigo(Eestatus.WTDEL);
 			if(oc.isPresent()) {
 				OrdenCompra ocu = oc.get();
 				ocu.setPiezasCompletadas(ocu.getPiezasCompletadas() + ofu.getPiezas());
 				repoOC.save(ocu);
 				ProductoTerminado pt = new ProductoTerminado(wtdl,ocu.getProducto(),
-										ofu.getOc(),
-										ofu.getLote(),
+										ofu.getOc().getOc(),
+										ocu.getLote(),
 										ofu.getPiezas(),
 										ocu.getFechaFabricacion(),
 										ocu.getFechaEntrega(),
@@ -233,7 +231,7 @@ public class OrdenFabricacionController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteOF(@PathVariable("id") final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
-		Optional<OrdenCompra> oc = repoOC.findByOc(off.get().getOc());
+		Optional<OrdenCompra> oc = repoOC.findByOc(off.get().getOc().getOc());
 		if(oc.isPresent()) {
 			OrdenCompra ocu = oc.get();
 			ocu.setPiezasFabricadas(ocu.getPiezasFabricadas() - off.get().getPiezas());

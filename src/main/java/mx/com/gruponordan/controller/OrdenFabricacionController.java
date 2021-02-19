@@ -6,7 +6,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +34,7 @@ import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
 import mx.com.gruponordan.model.OrdenFabricacion;
 import mx.com.gruponordan.model.ProductoTerminado;
+import mx.com.gruponordan.model.Sequence;
 import mx.com.gruponordan.repository.EstatusDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
 import mx.com.gruponordan.repository.OrdenCompraDAO;
@@ -58,6 +66,9 @@ public class OrdenFabricacionController {
 	@Autowired
 	OrdenCompraDAO repoOC;
 	
+	@Autowired
+	MongoOperations mongoperations;
+	
 	@GetMapping("/active/{active}")
 	public ResponseEntity<?> getAllOF(@PathVariable String active){
 		if(active.equals("true")) {
@@ -78,26 +89,35 @@ public class OrdenFabricacionController {
 		}
 	}
 	
+	@GetMapping("/count")
+	public ResponseEntity<?> getMaxOF(){
+		Counter c = new Counter(repoOF.count());
+		return ResponseEntity.ok(c);
+	}
+	
 	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}")
 	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
-		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
-		List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
 		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
+		if(codigo.equals(AGUA)) {
+			MatPrimaOrdFab mpof = new MatPrimaOrdFab(codigo, "AGUA" ,cantReq,"","OK","");
+			lstRspMPOF.add(mpof);
+			return ResponseEntity.ok(lstRspMPOF);
+		}
+		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
+		List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
 		
 		for(MateriaPrima matprima : lstMateriaPrima){
-			if(!matprima.getCodigo().equals(AGUA)) {
-				if(matprima.getCantidad() - cantReq > 0 ) {
-					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
-					cantReq = 0;
-					lstRspMPOF.add(mpof);
-					lstMPUpdtApartado.add(matprima);
-					break;
-				}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
-					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
-					lstRspMPOF.add(mpof);
-					cantReq -= matprima.getCantidad();
-				}
+			if(matprima.getCantidad() - cantReq > 0 ) {
+				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
+				cantReq = 0;
+				lstRspMPOF.add(mpof);
+				lstMPUpdtApartado.add(matprima);
+				break;
+			}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
+				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
+				lstRspMPOF.add(mpof);
+				cantReq -= matprima.getCantidad();
 			}
 		}
 		
@@ -137,7 +157,8 @@ public class OrdenFabricacionController {
 			}
 		});
 		
-		Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc().getOc());
+		//Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc().getOc());
+		Optional<OrdenCompra> oc = repoOC.findById(ordenFabricacion.getOc().getId());
 		/* Guarda la cantidad a producir, esta se va ir acomulando */
 		if(oc.isPresent()) {
 			OrdenCompra ocu = oc.get();
@@ -145,28 +166,21 @@ public class OrdenFabricacionController {
 			ocu.setEstatus(Eestatus.TEP);
 			repoOC.save(ocu);
 		}
-		
 		repomatprima.saveAll(mpUpdt);
+		ordenFabricacion.setNoConsecutivo(getCounter());
 		return ResponseEntity.ok(repoOF.save(ordenFabricacion));
 	}
 	
-	/*@PostMapping("/cancelar")
-	public ResponseEntity<?> cancelarOF(@RequestBody final OrdenFabricacion ordenFabricacion) {
-		List<MatPrimaOrdFab> matPrimOrdFab = ordenFabricacion.getMatprima();
-		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
-		
-		matPrimOrdFab.stream().forEach(mpof -> {
-			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
-			if(mpf!=null) {
-				mpf.setApartado(mpf.getApartado() - mpof.getCantidad());
-				mpf.setCantidad(mpf.getCantidad() + mpof.getCantidad());				
-				mpUpdt.add(mpf);
-			}
-		});
-		return ResponseEntity.ok(repomatprima.saveAll(mpUpdt));
-	}*/
+	private long getCounter() {
+		Sequence c = null;
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is("ordenfab_sequence"));
+		FindAndModifyOptions options = new FindAndModifyOptions();
+		c = mongoperations.findAndModify(query, new Update().inc("counter",1),options.returnNew(true).upsert(true),Sequence.class );
+		return c.getCounter();
+	}
 	
-	@PutMapping("/{id}")
+	@PutMapping("/{idOrdenFabricacion}")
 	public ResponseEntity<?> updateOF(@PathVariable final String idOrdenFabricacion, @RequestBody final OrdenFabricacion ordenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
 		if(off.isPresent()) {
@@ -189,12 +203,17 @@ public class OrdenFabricacionController {
 	@GetMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
+		
 		List<MatPrimaOrdFab> matPrimOrdFab; //= ordenFabricacion.getMatprima();
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		if(off.isPresent()) {			
 			OrdenFabricacion ofu = off.get();
+			
 			matPrimOrdFab = ofu.getMatprima();
 			for(MatPrimaOrdFab mpof : matPrimOrdFab){
+				if(mpof.getCodigo().equals(AGUA)) {
+					continue;
+				}
 				MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
 				mpf.setApartado(mpf.getApartado()- mpof.getCantidad());
 				mpf.setCantidad(mpf.getCantidad() - mpof.getCantidad());

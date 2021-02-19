@@ -34,6 +34,8 @@ public class ProductoTerminado {
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date fechaRemision;
+	//private boolean enviado;
+	private double piezasEntregadas;
 	
 	public ProductoTerminado(Estatus estatus,ProductoDisponible producto, String oc, String lote, double piezas, Date fechaFabricacion, Date fechaEntrega, long noConsecutivo, Cliente cliente, String clave ) {
 		super();
@@ -47,6 +49,7 @@ public class ProductoTerminado {
 		this.noConsecutivo = noConsecutivo;
 		this.cliente = cliente;
 		this.clave = clave;
+		//this.enviado = false;
 	}
 	public String getId() {
 		return id;
@@ -132,6 +135,12 @@ public class ProductoTerminado {
 	}
 	public void setFechaRemision(Date fechaRemision) {
 		this.fechaRemision = fechaRemision;
+	}
+	public double getPiezasEntregadas() {
+		return piezasEntregadas;
+	}
+	public void setPiezasEntregadas(double piezasEntregadas) {
+		this.piezasEntregadas = piezasEntregadas;
 	}
 	@Override
 	public String toString() {

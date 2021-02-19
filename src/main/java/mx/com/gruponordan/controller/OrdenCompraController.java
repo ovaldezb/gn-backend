@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.com.gruponordan.model.ClienteProducto;
 import mx.com.gruponordan.model.Eestatus;
 import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
+import mx.com.gruponordan.repository.ClienteProductoDAO;
 import mx.com.gruponordan.repository.EstatusDAO;
 import mx.com.gruponordan.repository.OrdenCompraDAO;
 
@@ -28,6 +30,9 @@ public class OrdenCompraController {
 
 	@Autowired
 	OrdenCompraDAO repoOC;
+	
+	@Autowired
+	ClienteProductoDAO repoCP;
 	
 	@Autowired
 	EstatusDAO repoestatus;
@@ -52,6 +57,11 @@ public class OrdenCompraController {
 		}
 	}
 	
+	@GetMapping("/cp/{idCliente}")
+	public ResponseEntity<?> getProductoByCliente(@PathVariable final String idCliente){
+		return ResponseEntity.ok(repoCP.findByIdCliente(idCliente));
+	}
+	
 	@GetMapping("/oc/{ordenCompra}")
 	public ResponseEntity<?> getOCByNumber(@PathVariable final String ordenCompra){
 		if(ordenCompra.equals("vacio")) {
@@ -70,6 +80,11 @@ public class OrdenCompraController {
 	public ResponseEntity<?> saveOC(@RequestBody final OrdenCompra ordenCompra) {
 		//Estatus estatus = repoestatus.findByCodigo(ordenCompra.getEstatus());
 		//ordenCompra.setEstatus(estatus);
+		Optional<ClienteProducto> cpf = repoCP.findByClienteAndClave(ordenCompra.getCliente().getNombre(), ordenCompra.getProducto().getClave());
+		if(cpf.isEmpty()) {
+			ClienteProducto cp = new ClienteProducto(ordenCompra.getCliente().getNombre(),ordenCompra.getCliente().getId(),ordenCompra.getProducto().getNombre(),ordenCompra.getProducto().getId(),ordenCompra.getProducto().getClave());
+			repoCP.save(cp);
+		}
 		return ResponseEntity.ok(repoOC.save(ordenCompra));
 	}
 	

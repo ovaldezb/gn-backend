@@ -7,5 +7,6 @@ public enum Eestatus {
 	CMPLT,
 	WTDEL,
 	DELVRD,
-	APRVD
+	APRVD,
+	EEP
 }

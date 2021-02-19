@@ -10,5 +10,6 @@ import mx.com.gruponordan.model.ProductoTerminado;
 
 public interface ProductoTerminadoDAO extends MongoRepository<ProductoTerminado, String>{
 	public ProductoTerminado findByClave(String clave);
+	
 	public List<ProductoTerminado> findByEstatus(Estatus estatus);
 }

@@ -1,9 +1,13 @@
 package mx.com.gruponordan.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,14 +22,15 @@ import mx.com.gruponordan.model.Eestatus;
 import mx.com.gruponordan.model.Estatus;
 import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
+import mx.com.gruponordan.model.ProductoEntregado;
 import mx.com.gruponordan.model.ProductoTerminado;
 import mx.com.gruponordan.repository.EstatusDAO;
 import mx.com.gruponordan.repository.OrdenCompraDAO;
+import mx.com.gruponordan.repository.ProductoEntregadoDAO;
 import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 
 @RestController
 @RequestMapping("/api/prodterm")
-//@CrossOrigin(origins = "http://localhost:3000")
 @CrossOrigin(origins = "*")
 public class ProductoTerminadoController {
 
@@ -38,6 +43,12 @@ public class ProductoTerminadoController {
 	@Autowired
 	EstatusDAO repoestatus;
 	
+	@Autowired
+	ProductoEntregadoDAO repoPE;
+	
+	@Autowired
+	MongoOperations mongoperations;
+	
 	@GetMapping()
 	public List<ProductoTerminado> getProductoTermAll(){
 		return repoPT.findAll();
@@ -45,13 +56,15 @@ public class ProductoTerminadoController {
 	
 	@GetMapping("/activo")
 	public List<ProductoTerminado> getProductoTermActive(){
-		return repoPT.findByEstatus(repoestatus.findByCodigo(Eestatus.WTDEL));
+		Estatus estatus = repoestatus.findByCodigo(Eestatus.DELVRD);
+		Query qry = new Query();
+		qry.addCriteria(Criteria.where("estatus").ne(estatus));
+		return mongoperations.find(qry, ProductoTerminado.class);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getPtById(@PathVariable final String id_ProductoTerminad){
 		Optional<ProductoTerminado> pt = repoPT.findById(id_ProductoTerminad);
-		
 		if(pt.isPresent()) {
 			return ResponseEntity.ok(pt);
 		}else {
@@ -77,21 +90,26 @@ public class ProductoTerminadoController {
 	@PutMapping("/dlvr/{id}")
 	public ResponseEntity<?> updatePT(@PathVariable("id") String id,@RequestBody ProductoTerminado prodterm){
 		Optional<ProductoTerminado> ptf = repoPT.findById(id);
-		Estatus estatusPt = repoestatus.findByCodigo(Eestatus.DELVRD);
 		if(ptf.isPresent()) {
 			ProductoTerminado ptu = ptf.get();
-			ptu.setEstatus(estatusPt);		
+			ptu.setEstatus((ptu.getPiezas() - ptu.getPiezasEntregadas() - prodterm.getPiezasEntregadas() == 0) ? repoestatus.findByCodigo(Eestatus.DELVRD) : repoestatus.findByCodigo(Eestatus.EEP));
 			ptu.setComentario(prodterm.getComentario());
+			ptu.setPiezasEntregadas(ptu.getPiezasEntregadas() + prodterm.getPiezasEntregadas());
 			Optional<OrdenCompra> oc = repoOC.findByOc(ptu.getOc());
 			if(oc.isPresent()) {
 				OrdenCompra ocu = oc.get();
+				/* Aqui es donde se define si se completa la OC con las piezas fabricads o entregadas
+				 * 1)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
+				 * 2)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezasEntregadas());
+				 * */
 				ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
 				if(ocu.getPiezasEntregadas() == ocu.getPiezas()) {
 					ocu.setEstatus(Eestatus.CMPLT);
 				}
 				repoOC.save(ocu);
-				
 			}
+			ProductoEntregado prodent = new ProductoEntregado(prodterm.getOc(), prodterm.getLote(), prodterm.getCliente(), prodterm.getProducto().getNombre(), prodterm.getPiezasEntregadas(), prodterm.getNoConsecutivo(), new Date(), prodterm.getNoRemision());
+			repoPE.save(prodent);
 			return ResponseEntity.ok(repoPT.save(ptu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo actualizar"));

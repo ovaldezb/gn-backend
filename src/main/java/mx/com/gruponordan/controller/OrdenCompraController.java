@@ -47,7 +47,7 @@ public class OrdenCompraController {
 		return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
 	}
 	
-	@GetMapping("/{id}")
+	@GetMapping("/{idOrdenCompra}")
 	public ResponseEntity<?> getOCById(@PathVariable final String idOrdenCompra){
 		Optional<OrdenCompra> oc = repoOC.findById(idOrdenCompra);
 		if(oc.isPresent()) {

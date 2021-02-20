@@ -87,33 +87,34 @@ public class ProductoTerminadoController {
 	 * Completa un PT, poniendo el estatus en Entregado
 	 * Cuando las piezas entregadas sean iguales a las piezas totales, se cierra la OC
 	 * */
-	@PutMapping("/dlvr/{id}")
-	public ResponseEntity<?> updatePT(@PathVariable("id") String id,@RequestBody ProductoTerminado prodterm){
-		Optional<ProductoTerminado> ptf = repoPT.findById(id);
-		if(ptf.isPresent()) {
-			ProductoTerminado ptu = ptf.get();
-			ptu.setEstatus((ptu.getPiezas() - ptu.getPiezasEntregadas() - prodterm.getPiezasEntregadas() == 0) ? repoestatus.findByCodigo(Eestatus.DELVRD) : repoestatus.findByCodigo(Eestatus.EEP));
-			ptu.setComentario(prodterm.getComentario());
-			ptu.setPiezasEntregadas(ptu.getPiezasEntregadas() + prodterm.getPiezasEntregadas());
-			Optional<OrdenCompra> oc = repoOC.findByOc(ptu.getOc());
-			if(oc.isPresent()) {
-				OrdenCompra ocu = oc.get();
-				/* Aqui es donde se define si se completa la OC con las piezas fabricads o entregadas
-				 * 1)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
-				 * 2)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezasEntregadas());
-				 * */
-				ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
-				if(ocu.getPiezasEntregadas() == ocu.getPiezas()) {
-					ocu.setEstatus(Eestatus.CMPLT);
+	@PutMapping("/dlvr")
+	public ResponseEntity<?> updatePT(@RequestBody ProductoTerminado[] prodterm){
+		for(ProductoTerminado pt : prodterm) {
+			Optional<ProductoTerminado> ptf = repoPT.findById(pt.getId());
+			if(ptf.isPresent()) {
+				ProductoTerminado ptu = ptf.get();
+				ptu.setEstatus((ptu.getPiezas() - ptu.getPiezasEntregadas() - pt.getPiezasEntregadas() == 0) ? repoestatus.findByCodigo(Eestatus.DELVRD) : repoestatus.findByCodigo(Eestatus.EEP));
+				ptu.setComentario(pt.getComentario());
+				ptu.setPiezasEntregadas(ptu.getPiezasEntregadas() + pt.getPiezasEntregadas());
+				Optional<OrdenCompra> oc = repoOC.findByOc(ptu.getOc());
+				if(oc.isPresent()) {
+					OrdenCompra ocu = oc.get();
+					/* Aqui es donde se define si se completa la OC con las piezas fabricads o entregadas
+					 * 1)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezas());
+					 * 2)ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + ptu.getPiezasEntregadas());
+					 * */
+					ocu.setPiezasEntregadas(ocu.getPiezasEntregadas() + pt.getPiezasEntregadas());					
+					if(ocu.getPiezasEntregadas() == ocu.getPiezas()) {
+						ocu.setEstatus(Eestatus.CMPLT);
+					}
+					repoOC.save(ocu);
 				}
-				repoOC.save(ocu);
+				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente(), pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), new Date(), pt.getNoRemision());
+				repoPE.save(prodent);
+				ResponseEntity.ok(repoPT.save(ptu));
 			}
-			ProductoEntregado prodent = new ProductoEntregado(prodterm.getOc(), prodterm.getLote(), prodterm.getCliente(), prodterm.getProducto().getNombre(), prodterm.getPiezasEntregadas(), prodterm.getNoConsecutivo(), new Date(), prodterm.getNoRemision());
-			repoPE.save(prodent);
-			return ResponseEntity.ok(repoPT.save(ptu));
-		}else {
-			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo actualizar"));
 		}
+		return ResponseEntity.ok(prodterm);
 	}
 	
 	/*

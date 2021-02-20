@@ -99,32 +99,35 @@ public class OrdenFabricacionController {
 	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
 		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
+		
 		if(codigo.equals(AGUA)) {
 			MatPrimaOrdFab mpof = new MatPrimaOrdFab(codigo, "AGUA" ,cantReq,"","OK","");
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
 		}
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
-		List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
+		//List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
 		
 		for(MateriaPrima matprima : lstMateriaPrima){
 			if(matprima.getCantidad() - cantReq > 0 ) {
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
 				cantReq = 0;
 				lstRspMPOF.add(mpof);
-				lstMPUpdtApartado.add(matprima);
+				//lstMPUpdtApartado.add(matprima);
+				//logger.info("Alcanzo en el 1er lote"+mpof.toString()+" "+matprima.getLote());
 				break;
 			}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
 				lstRspMPOF.add(mpof);
 				cantReq -= matprima.getCantidad();
+				//logger.info("No Alcanzo en el 1er lote"+mpof.toString()+" "+matprima.getLote());
 			}
 		}
 		
 		/* esto aparta las cantidades necesarias para una OF, las descuenta de la Cantidad y las pone en Apartado*/
-		if(!lstMPUpdtApartado.isEmpty()) {
+		/*if(!lstMPUpdtApartado.isEmpty()) {
 			repomatprima.saveAll(lstMPUpdtApartado);
-		}
+		}*/
 		
 		if(!lstRspMPOF.isEmpty() && cantReq == 0) {
 			return ResponseEntity.ok(lstRspMPOF);
@@ -135,7 +138,7 @@ public class OrdenFabricacionController {
 				 mpof = new MatPrimaOrdFab(codigo,"", cantReq, codigo, "ERROR", "Materia prima no encontrada");
 			}else if(cantReq > 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
-				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format(cantReq)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq));
+				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq));
 			}			
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
@@ -152,12 +155,12 @@ public class OrdenFabricacionController {
 		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
 			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
 			if(mpf!=null) {
-				mpf.setApartado(mpof.getCantidad());
+				mpf.setApartado(mpf.getApartado() + mpof.getCantidad());
 				mpUpdt.add(mpf);
 			}
 		});
 		
-		//Optional<OrdenCompra> oc = repoOC.findByOc(ordenFabricacion.getOc().getOc());
+		
 		Optional<OrdenCompra> oc = repoOC.findById(ordenFabricacion.getOc().getId());
 		/* Guarda la cantidad a producir, esta se va ir acomulando */
 		if(oc.isPresent()) {
@@ -197,10 +200,9 @@ public class OrdenFabricacionController {
 	}
 	
 	/*
-	 * @Get, porque no recibe parametros en el body
 	 * Completa una OF y genera un PT
 	 */
-	@GetMapping("/complete/{idOrdenFabricacion}")
+	@PutMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
 		

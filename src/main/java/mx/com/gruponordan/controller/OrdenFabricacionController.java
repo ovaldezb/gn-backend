@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -99,35 +97,25 @@ public class OrdenFabricacionController {
 	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
 		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
-		
 		if(codigo.equals(AGUA)) {
 			MatPrimaOrdFab mpof = new MatPrimaOrdFab(codigo, "AGUA" ,cantReq,"","OK","");
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
 		}
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
-		//List<MateriaPrima> lstMPUpdtApartado = new ArrayList<MateriaPrima>();
 		
 		for(MateriaPrima matprima : lstMateriaPrima){
 			if(matprima.getCantidad() - cantReq > 0 ) {
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),cantReq,matprima.getLote(),"OK","");
 				cantReq = 0;
-				lstRspMPOF.add(mpof);
-				//lstMPUpdtApartado.add(matprima);
-				//logger.info("Alcanzo en el 1er lote"+mpof.toString()+" "+matprima.getLote());
+				lstRspMPOF.add(mpof);				
 				break;
 			}else if(matprima.getCantidad() > 0) { //Este toma lo que queda disponible en el Lote
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),matprima.getCantidad(),matprima.getLote(),"OK","");
 				lstRspMPOF.add(mpof);
 				cantReq -= matprima.getCantidad();
-				//logger.info("No Alcanzo en el 1er lote"+mpof.toString()+" "+matprima.getLote());
 			}
 		}
-		
-		/* esto aparta las cantidades necesarias para una OF, las descuenta de la Cantidad y las pone en Apartado*/
-		/*if(!lstMPUpdtApartado.isEmpty()) {
-			repomatprima.saveAll(lstMPUpdtApartado);
-		}*/
 		
 		if(!lstRspMPOF.isEmpty() && cantReq == 0) {
 			return ResponseEntity.ok(lstRspMPOF);
@@ -143,15 +131,12 @@ public class OrdenFabricacionController {
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
 		}
-		
-		
 	}
 	
 	@PostMapping()
 	public ResponseEntity<?> saveOF(@RequestBody final OrdenFabricacion ordenFabricacion) {
 		List<MatPrimaOrdFab> matPrimOrdFab = ordenFabricacion.getMatprima();
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
-		
 		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
 			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
 			if(mpf!=null) {
@@ -189,7 +174,6 @@ public class OrdenFabricacionController {
 		if(off.isPresent()) {
 			OrdenFabricacion ofu = off.get();
 			ofu.setOc(ordenFabricacion.getOc());
-			//ofu.setLote(ordenFabricacion.getLote());
 			ofu.setPiezas(ordenFabricacion.getPiezas());
 			ofu.setObservaciones(ordenFabricacion.getObservaciones());
 			ofu.setMatprima(ordenFabricacion.getMatprima());
@@ -202,15 +186,13 @@ public class OrdenFabricacionController {
 	/*
 	 * Completa una OF y genera un PT
 	 */
-	@PutMapping("/complete/{idOrdenFabricacion}")
+	@GetMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
-		
-		List<MatPrimaOrdFab> matPrimOrdFab; //= ordenFabricacion.getMatprima();
+		List<MatPrimaOrdFab> matPrimOrdFab;
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		if(off.isPresent()) {			
 			OrdenFabricacion ofu = off.get();
-			
 			matPrimOrdFab = ofu.getMatprima();
 			for(MatPrimaOrdFab mpof : matPrimOrdFab){
 				if(mpof.getCodigo().equals(AGUA)) {
@@ -222,7 +204,6 @@ public class OrdenFabricacionController {
 				mpUpdt.add(mpf);
 			}
 			repomatprima.saveAll(mpUpdt);
-			
 			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc().getOc());
 			Estatus wtdl = repoestatus.findByCodigo(Eestatus.WTDEL);
 			if(oc.isPresent()) {

@@ -4,10 +4,9 @@ import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "producto_terminado")
 public class ProductoTerminado {
@@ -32,7 +31,7 @@ public class ProductoTerminado {
 	private long noConsecutivo;
 	private String noRemision;
 	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaRemision;
 	//private boolean enviado;
 	private double piezasEntregadas;

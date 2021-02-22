@@ -1,9 +1,10 @@
 package mx.com.gruponordan.controller;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,6 +34,8 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 @RequestMapping("/api/prodterm")
 @CrossOrigin(origins = "*")
 public class ProductoTerminadoController {
+	
+	//Logger logger = LoggerFactory.getLogger(ProductoTerminadoController.class);
 
 	@Autowired
 	ProductoTerminadoDAO repoPT;
@@ -109,7 +112,8 @@ public class ProductoTerminadoController {
 					}
 					repoOC.save(ocu);
 				}
-				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente(), pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), new Date(), pt.getNoRemision());
+				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente().getNombre(), pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), pt.getFechaRemision(), pt.getNoRemision());
+				//logger.info(prodent.toString());
 				repoPE.save(prodent);
 				ResponseEntity.ok(repoPT.save(ptu));
 			}

@@ -16,16 +16,16 @@ public class ProductoEntregado {
 	private String oc;
 	private String lote;
 	@DBRef
-	private Cliente cliente;
+	private String cliente;
 	private String nombreProducto;
 	private double piezasEntregadas;
 	private double ordenFabricacion;
 	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaEntrega;
 	private String remision;
 	
-	public ProductoEntregado(String oc, String lote, Cliente cliente, String nombreProducto, double piezasEntregadas,
+	public ProductoEntregado(String oc, String lote, String cliente, String nombreProducto, double piezasEntregadas,
 			double ordenFabricacion, Date fechaEntrega, String remision) {
 		super();
 		this.oc = oc;
@@ -56,10 +56,10 @@ public class ProductoEntregado {
 	public void setLote(String lote) {
 		this.lote = lote;
 	}
-	public Cliente getCliente() {
+	public String getCliente() {
 		return cliente;
 	}
-	public void setCliente(Cliente cliente) {
+	public void setCliente(String cliente) {
 		this.cliente = cliente;
 	}
 	public String getNombreProducto() {
@@ -91,6 +91,14 @@ public class ProductoEntregado {
 	}
 	public void setRemision(String remision) {
 		this.remision = remision;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductoEntregado [id=" + id + ", oc=" + oc + ", lote=" + lote + ", cliente=" + cliente
+				+ ", nombreProducto=" + nombreProducto + ", piezasEntregadas=" + piezasEntregadas
+				+ ", ordenFabricacion=" + ordenFabricacion + ", fechaEntrega=" + fechaEntrega + ", remision=" + remision
+				+ "]";
 	}
 	
 }

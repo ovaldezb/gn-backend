@@ -24,6 +24,11 @@ public class ProductoEntregadoController {
 	@Autowired
 	ProductoEntregadoDAO repoPE;
 	
+	@GetMapping
+	public ResponseEntity<?> getAllProductosEntregados(){
+		return ResponseEntity.ok(repoPE.findAll());
+	}
+	
 	
 	@GetMapping("/{fecini}/{fecfin}")
 	public ResponseEntity<?> getReporteByDates(@PathVariable final String fecini, @PathVariable final String fecfin ){

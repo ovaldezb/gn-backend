@@ -3,7 +3,6 @@ package mx.com.gruponordan.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +14,6 @@ public class ProductoEntregado {
 	private String id;
 	private String oc;
 	private String lote;
-	@DBRef
 	private String cliente;
 	private String nombreProducto;
 	private double piezasEntregadas;

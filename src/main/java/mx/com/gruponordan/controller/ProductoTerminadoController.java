@@ -3,8 +3,6 @@ package mx.com.gruponordan.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -128,7 +126,6 @@ public class ProductoTerminadoController {
 	@PutMapping("/updnrem/{id}")
 	public ResponseEntity<?> updatePTNoRev(@PathVariable("id") String id,@RequestBody ProductoTerminado prodterm){
 		Optional<ProductoTerminado> ptf = repoPT.findById(id);
-		//Estatus estatusPt = repoestatus.findByCodigo(Eestatus.DELVRD);
 		if(ptf.isPresent()) {
 			ProductoTerminado ptu = ptf.get();
 			ptu.setNoRemision(prodterm.getNoRemision());	

@@ -48,6 +48,7 @@ public class OrdenFabricacionController {
 	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
 	private double PERCENT = 100;
 	private double MILILITROS = .001;
+	//private double GRAMOS = .001;
 	private String AGUA = "AGUA001";
 	@Autowired
 	OrdenFabricacionDAO repoOF;

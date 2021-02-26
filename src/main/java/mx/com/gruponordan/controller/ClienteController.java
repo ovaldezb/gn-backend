@@ -51,12 +51,10 @@ public class ClienteController {
 		Optional<Cliente> cltFound = repocliente.findById(id);
 		if(cltFound.isPresent()) {
 			Cliente cliupdt = cltFound.get();
-			cliupdt.setEmail(cliente.getEmail());
 			cliupdt.setNombre(cliente.getNombre());
 			cliupdt.setRfc(cliente.getRfc());
-			cliupdt.setTelefono(cliente.getTelefono());
-			cliupdt.setContacto(cliente.getContacto());
 			cliupdt.setDireccion(cliente.getDireccion());
+			cliupdt.setContactos(cliente.getContactos());
 			return ResponseEntity.ok(repocliente.save(cliupdt));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error"));

@@ -111,15 +111,6 @@ public class OrdenCompraController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteOC(@PathVariable String id) {
-		/*Optional<OrdenCompra> ocf = repoOC.findById(id);
-		if(ocf.isPresent()) {
-			Estatus estatus = repoestatus.findByCodigo(Eestatus.CMPLT);
-			OrdenCompra ocu = ocf.get();
-			ocu.setEstatus(estatus.getCodigo());
-			return ResponseEntity.ok(repoOC.save(ocu));
-		}else {
-			return ResponseEntity.badRequest().body(new MessageResponse("error"));
-		}*/
 		repoOC.deleteById(id);
 		return ResponseEntity.ok(new MessageResponse("deleted"));
 	}

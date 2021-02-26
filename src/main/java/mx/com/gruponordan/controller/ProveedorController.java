@@ -56,10 +56,9 @@ public class ProveedorController {
 		if(prf.isPresent()) {
 			Proveedor pru = prf.get();
 			pru.setNombre(proveedor.getNombre());
-			pru.setContacto(proveedor.getContacto());
-			pru.setTelefono(proveedor.getTelefono());
+			pru.setContactos(proveedor.getContactos());
+			pru.setTelefonoPrincipal(proveedor.getTelefonoPrincipal());
 			pru.setDireccion(proveedor.getDireccion());
-			pru.setEmail(proveedor.getEmail());
 			return ResponseEntity.ok(repoprove.save(pru));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error al actualizar"));

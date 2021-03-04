@@ -1,22 +1,11 @@
 package mx.com.gruponordan.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document(collection="contacto")
 public class Contacto {
 	
-	@Id
-	private String id;
 	private String nombre;
 	private String email;
 	private String telefono;
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+	
 	public String getNombre() {
 		return nombre;
 	}

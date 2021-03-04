@@ -8,5 +8,6 @@ public enum Eestatus {
 	WTDEL,
 	DELVRD,
 	APRVD,
-	EEP
+	EEP,
+	CANCEL
 }

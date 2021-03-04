@@ -110,8 +110,9 @@ public class ProductoTerminadoController {
 					}
 					repoOC.save(ocu);
 				}
-				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente().getNombre(), pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), pt.getFechaRemision(), pt.getNoRemision());
-				//logger.info(prodent.toString());
+				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente().getNombre(), 
+						pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), 
+						pt.getFechaRemision(), pt.getNoRemision(), pt.getTipoEntrega(),pt.getIdDireccion());
 				repoPE.save(prodent);
 				ResponseEntity.ok(repoPT.save(ptu));
 			}

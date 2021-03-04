@@ -1,6 +1,5 @@
 package mx.com.gruponordan.model;
 
-import java.text.DecimalFormat;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -12,10 +11,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Document(collection = "materiaprima")
 public class MateriaPrima {
 	
+	@Override
+	public String toString() {
+		return "MateriaPrima [cantidad=" + cantidad + "]";
+	}
 	@Id
 	private String id;
 	private String descripcion;
 	private double cantidad;
+	private double cantidadOriginal;
 	@DBRef
 	private UnidadMedida unidad;
 	private String codigo;
@@ -37,7 +41,7 @@ public class MateriaPrima {
 	private double factor;
 	private double apartado;
 	private String tipo; //P : Produccion, I: I&D
-	
+	private double factorConversion;
 	
 	public String getId() {
 		return id;
@@ -53,13 +57,17 @@ public class MateriaPrima {
 	}
 	
 	public double getCantidad() {
-		DecimalFormat df = new DecimalFormat("#########.##");
-		return Double.parseDouble(df.format(cantidad));
+		return cantidad;
 	}
 	public void setCantidad(double cantidad) {
 		this.cantidad = cantidad;
 	}
-	
+	public double getCantidadOriginal() {
+		return cantidadOriginal;
+	}
+	public void setCantidadOriginal(double cantidadOriginal) {
+		this.cantidadOriginal = cantidadOriginal;
+	}
 	public UnidadMedida getUnidad() {
 		return unidad;
 	}
@@ -138,20 +146,11 @@ public class MateriaPrima {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
-	
-	@Override
-	public String toString() {
-		return "MateriaPrima [id=" + id + ", descripcion=" + descripcion + ", cantidad=" + cantidad + ", unidad="
-				+ unidad + ", codigo=" + codigo + ", proveedor=" + proveedor + ", fechaEntrada=" + fechaEntrada
-				+ ", fechaCaducidad=" + fechaCaducidad + ", observaciones=" + observaciones + ", lote=" + lote
-				+ ", necesario=" + necesario + ", escaso=" + escaso + ", activo=" + activo + ", factor=" + factor
-				+ ", apartado=" + apartado + ", tipo=" + tipo + "]";
+	public double getFactorConversion() {
+		return factorConversion;
 	}
+	public void setFactorConversion(double factorConversion) {
+		this.factorConversion = factorConversion;
+	}	
 	
-	
-
-	
-	
-	
-
 }

@@ -1,9 +1,14 @@
 package mx.com.gruponordan.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +43,55 @@ public class MateriaPrimaController {
 	@ApiOperation(value="Regresa todas las materias primas")
 	@GetMapping()
 	public List<MateriaPrima> getAllMP() {
-		return repoMP.findMateriasPrimasGtCantidad(0.0);
+		Sort sort = Sort.by(Sort.Direction.ASC, "fechaCaducidad");
+		return repoMP.findMateriasPrimasGtCantidad(0.0,sort);
+	}
+	
+	@GetMapping("/ini/{date}")
+	public ResponseEntity<List<MateriaPrima>> getMPByCadLt(@PathVariable("date") final String date){
+		SimpleDateFormat parser = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
+		Date fechaIni = null;
+		try {
+			fechaIni = parser.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		List<MateriaPrima> lista = repoMP.findByFechaCaducidadLt(fechaIni);
+		List<MateriaPrima> listaFiltrada = lista.stream().filter(mp->mp.getCantidad()>0.0).collect(Collectors.toList());
+		listaFiltrada.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));
+		return ResponseEntity.ok(listaFiltrada);
+	}
+	
+	@GetMapping("/fin/{date}")
+	public ResponseEntity<List<MateriaPrima>> getMPByCadGt(@PathVariable("date") final String date){
+		SimpleDateFormat parser = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
+		Date fechaFin = null;
+		try {
+			fechaFin = parser.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		List<MateriaPrima> lista = repoMP.findByFechaCaducidadGt(fechaFin);
+		List<MateriaPrima> listaFiltrada = lista.stream().filter(mp->mp.getCantidad()>0.0).collect(Collectors.toList());
+		listaFiltrada.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));
+		return ResponseEntity.ok(listaFiltrada);
+	}
+	
+	@GetMapping("/btw/{fecini}/{fecfin}")
+	public ResponseEntity<List<MateriaPrima>> getMPByCadBtwn(@PathVariable("fecini") final String fecini, @PathVariable("fecfin") final String fecfin){
+		SimpleDateFormat parser = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
+		Date fechaIni = null;
+		Date fechaFin = null;
+		try {
+			fechaIni = parser.parse(fecini);
+			fechaFin = parser.parse(fecfin);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		List<MateriaPrima> lista = repoMP.findByFechaCaducidadBetweenOrderByFechaCaducidadAsc(fechaIni,fechaFin);
+		List<MateriaPrima> listaFiltrada = lista.stream().filter(mp->mp.getCantidad()>0.0).collect(Collectors.toList());
+		listaFiltrada.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));
+		return ResponseEntity.ok(listaFiltrada);
 	}
 
 	@ApiOperation(value="Obtiene una MP por su ID")
@@ -49,8 +102,18 @@ public class MateriaPrimaController {
 			return ResponseEntity.ok().body(mp);
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo almacenar la mp"));
-		}
-		
+		}	
+	}
+	
+	@ApiOperation(value="Obtiene una MP por su Codigo")
+	@GetMapping("/codigo/{codigo}")
+	public ResponseEntity<?> getMatPrimaByCodigo(@PathVariable("codigo") final String codigo) {
+		Optional<MateriaPrima> mp = repoMP.findByCodigo(codigo);
+		if(mp !=null) {
+			return ResponseEntity.ok().body(mp);
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo recuperar la mp"));
+		}	
 	}
 
 	@PostMapping()
@@ -64,20 +127,20 @@ public class MateriaPrimaController {
 			}
 			return ResponseEntity.ok().body(repoMP.save(matprima)) ;
 		}else {
-			return ResponseEntity.badRequest().body(new MessageResponse("error al guardar la materia prima"));
+			return ResponseEntity.badRequest().body(new MessageResponse("error al guardar la materia prima disponible"));
 		}
 		
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateMP(@PathVariable(required = true) String id, @RequestBody MateriaPrima matprima){
-		//System.out.println(matprima);
 		Optional<MateriaPrima> mpf = repoMP.findById(id);
 		if(mpf.isPresent()) {
 			MateriaPrima mpu = mpf.get();
 			mpu.setDescripcion(matprima.getDescripcion());
 			mpu.setCodigo(matprima.getCodigo());
 			mpu.setCantidad(matprima.getCantidad());
+			mpu.setCantidadOriginal(matprima.getCantidadOriginal());
 			mpu.setObservaciones(matprima.getObservaciones());
 			mpu.setProveedor(matprima.getProveedor());
 			mpu.setUnidad(matprima.getUnidad());
@@ -86,6 +149,7 @@ public class MateriaPrimaController {
 			mpu.setFechaEntrada(matprima.getFechaEntrada());
 			mpu.setFechaCaducidad(matprima.getFechaCaducidad());
 			mpu.setTipo(matprima.getTipo());
+			mpu.setLote(matprima.getLote());
 			return ResponseEntity.ok(repoMP.save(mpu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

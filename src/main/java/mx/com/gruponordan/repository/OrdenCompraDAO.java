@@ -10,6 +10,6 @@ import mx.com.gruponordan.model.OrdenCompra;
 
 public interface OrdenCompraDAO extends MongoRepository<OrdenCompra, String> {
 	public Optional<OrdenCompra> findByOc(String oc);
-	public List<OrdenCompra> findByOcAndAprobado(String oc, boolean aprobado);
-	public List<OrdenCompra> findByEstatusNotLike(Eestatus estatus);
+	//public List<OrdenCompra> findByOcAndAprobado(String oc, boolean aprobado);
+	public List<OrdenCompra> findByEstatusNotLikeOrderByFechaEntrega(Eestatus estatus);
 }

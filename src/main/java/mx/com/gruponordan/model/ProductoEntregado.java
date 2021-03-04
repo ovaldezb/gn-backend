@@ -22,9 +22,11 @@ public class ProductoEntregado {
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaEntrega;
 	private String remision;
+	private String tipoEntrega;
+	private int idDireccion;
 	
 	public ProductoEntregado(String oc, String lote, String cliente, String nombreProducto, double piezasEntregadas,
-			double ordenFabricacion, Date fechaEntrega, String remision) {
+			double ordenFabricacion, Date fechaEntrega, String remision, String tipoEntrega, int idDireccion) {
 		super();
 		this.oc = oc;
 		this.lote = lote;
@@ -34,6 +36,8 @@ public class ProductoEntregado {
 		this.ordenFabricacion = ordenFabricacion;
 		this.fechaEntrega = fechaEntrega;
 		this.remision = remision;
+		this.tipoEntrega = tipoEntrega;
+		this.idDireccion = idDireccion;
 	}
 	
 	public String getId() {
@@ -89,6 +93,22 @@ public class ProductoEntregado {
 	}
 	public void setRemision(String remision) {
 		this.remision = remision;
+	}
+
+	public String getTipoEntrega() {
+		return tipoEntrega;
+	}
+
+	public void setTipoEntrega(String tipoEntrega) {
+		this.tipoEntrega = tipoEntrega;
+	}
+
+	public int getIdDireccion() {
+		return idDireccion;
+	}
+
+	public void setIdDireccion(int idDireccion) {
+		this.idDireccion = idDireccion;
 	}
 
 	@Override

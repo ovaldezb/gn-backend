@@ -44,7 +44,7 @@ public class OrdenCompraController {
 	
 	@GetMapping()
 	public ResponseEntity<?> getActiveOC(){
-		return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
+		return ResponseEntity.ok(repoOC.findByEstatusNotLikeOrderByFechaEntrega(Eestatus.CMPLT));
 	}
 	
 	@GetMapping("/{idOrdenCompra}")
@@ -62,25 +62,31 @@ public class OrdenCompraController {
 		return ResponseEntity.ok(repoCP.findByIdCliente(idCliente));
 	}
 	
-	@GetMapping("/oc/{ordenCompra}")
+	@GetMapping("/clave/{oc}")
+	public ResponseEntity<?> getOCByClave(@PathVariable final String oc){
+		return ResponseEntity.ok(repoOC.findByOc(oc));
+	}
+	
+	/*@GetMapping("/oc/{ordenCompra}")
 	public ResponseEntity<?> getOCByNumber(@PathVariable final String ordenCompra){
 		if(ordenCompra.equals("vacio")) {
-			return ResponseEntity.ok(repoOC.findByEstatusNotLike(Eestatus.CMPLT));
+			return ResponseEntity.ok(repoOC.findByEstatusNotLikeOrderByFechaEntrega(Eestatus.CMPLT));
 		}else {
-			List<OrdenCompra> ordenescompra = repoOC.findByOcAndAprobado(ordenCompra,true);
+			
+			List<OrdenCompra> ordenescompra = repoOC.findAll();
 			if(!ordenescompra.isEmpty()) {
 				return ResponseEntity.ok(ordenescompra);
 			}else {
 				return ResponseEntity.badRequest().body(new MessageResponse("No se encontro"));
 			}	
 		}
-	}
+	}*/
 	
 	@PostMapping()
 	public ResponseEntity<?> saveOC(@RequestBody final OrdenCompra ordenCompra) {
 		//Estatus estatus = repoestatus.findByCodigo(ordenCompra.getEstatus());
 		//ordenCompra.setEstatus(estatus);
-		Optional<ClienteProducto> cpf = repoCP.findByClienteAndClave(ordenCompra.getCliente().getNombre(), ordenCompra.getProducto().getClave());
+		Optional<ClienteProducto> cpf = repoCP.findByIdClienteAndClave(ordenCompra.getCliente().getId(), ordenCompra.getProducto().getClave());
 		if(cpf.isEmpty()) {
 			ClienteProducto cp = new ClienteProducto(ordenCompra.getCliente().getNombre(),ordenCompra.getCliente().getId(),ordenCompra.getProducto().getNombre(),ordenCompra.getProducto().getId(),ordenCompra.getProducto().getClave());
 			repoCP.save(cp);
@@ -100,7 +106,7 @@ public class OrdenCompraController {
 			ocu.setObservaciones(ordenCompra.getObservaciones());
 			ocu.setOc(ordenCompra.getOc());
 			ocu.setPresentacion(ordenCompra.getPresentacion());
-			ocu.setAprobado(ordenCompra.isAprobado());
+			//ocu.setAprobado(ordenCompra.isAprobado());
 			ocu.setEstatus(ordenCompra.getEstatus());
 			return ResponseEntity.ok(repoOC.save(ocu));
 		}else {

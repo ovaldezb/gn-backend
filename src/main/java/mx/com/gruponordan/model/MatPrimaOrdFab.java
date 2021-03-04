@@ -10,6 +10,7 @@ public class MatPrimaOrdFab {
 	private String lote;
 	private String estatus;
 	private String comentarios;
+	private double delta;
 	
 	public MatPrimaOrdFab(String codigo,String nombre, double cantidad, String lote, String estatus, String comentarios) {
 		super();
@@ -19,6 +20,7 @@ public class MatPrimaOrdFab {
 		this.lote = lote;
 		this.estatus = estatus;
 		this.comentarios = comentarios;
+		this.delta = 0.0;
 	}
 	public String getCodigo() {
 		return codigo;
@@ -55,6 +57,12 @@ public class MatPrimaOrdFab {
 	}
 	public void setComentarios(String comentarios) {
 		this.comentarios = comentarios;
+	}
+	public double getDelta() {
+		return delta;
+	}
+	public void setDelta(double delta) {
+		this.delta = delta;
 	}
 	@Override
 	public String toString() {

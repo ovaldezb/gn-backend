@@ -38,8 +38,8 @@ public class OrdenCompra {
 	//Piezas que se han entregado;
 	private double piezasEntregadas;
 	private String tipoPresentacion;
-	private String lote;
-	private boolean aprobado;
+	//private String lote;
+	private double piezasLote;
 	
 	public String getId() {
 		return id;
@@ -132,26 +132,12 @@ public class OrdenCompra {
 	public void setTipoPresentacion(String tipoPresentacion) {
 		this.tipoPresentacion = tipoPresentacion;
 	}
-	public String getLote() {
-		return lote;
+	public double getPiezasLote() {
+		return piezasLote;
 	}
-	public void setLote(String lote) {
-		this.lote = lote;
+	public void setPiezasLote(double piezasLote) {
+		this.piezasLote = piezasLote;
 	}
-	public boolean isAprobado() {
-		return aprobado;
-	}
-	public void setAprobado(boolean aprobado) {
-		this.aprobado = aprobado;
-	}
-	@Override
-	public String toString() {
-		return "OrdenCompra [id=" + id + ", oc=" + oc + ", producto=" + producto + ", clave=" + clave
-				+ ", fechaFabricacion=" + fechaFabricacion + ", fechaEntrega=" + fechaEntrega + ", piezas=" + piezas
-				+ ", observaciones=" + observaciones + ", cliente=" + cliente + ", estatus=" + estatus
-				+ ", presentacion=" + presentacion + ", piezasFabricadas=" + piezasFabricadas + ", piezasCompletadas="
-				+ piezasCompletadas + ", piezasEntregadas=" + piezasEntregadas + ", tipoPresentacion="
-				+ tipoPresentacion + ", lote=" + lote + ", aprobado=" + aprobado + "]";
-	}
+	
 	
 }

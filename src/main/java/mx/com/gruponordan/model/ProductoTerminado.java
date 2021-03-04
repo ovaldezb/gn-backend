@@ -3,6 +3,7 @@ package mx.com.gruponordan.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,6 +20,7 @@ public class ProductoTerminado {
 	private String clave;
 	private double piezas;
 	private String lote;
+	@DBRef
 	private Cliente cliente;
 	private String oc;
 	private String comentario;
@@ -35,8 +37,14 @@ public class ProductoTerminado {
 	private Date fechaRemision;
 	//private boolean enviado;
 	private double piezasEntregadas;
+	@Transient
+	private String tipoEntrega;
+	@Transient
+	private int idDireccion;
 	
-	public ProductoTerminado(Estatus estatus,ProductoDisponible producto, String oc, String lote, double piezas, Date fechaFabricacion, Date fechaEntrega, long noConsecutivo, Cliente cliente, String clave ) {
+	public ProductoTerminado(Estatus estatus,ProductoDisponible producto, String oc, String lote, 
+			double piezas, Date fechaFabricacion, Date fechaEntrega, 
+			long noConsecutivo, Cliente cliente, String clave ) {
 		super();
 		this.estatus = estatus;
 		this.producto = producto;
@@ -62,7 +70,6 @@ public class ProductoTerminado {
 	public void setEstatus(Estatus estatus) {
 		this.estatus = estatus;
 	}
-	
 	public ProductoDisponible getProducto() {
 		return producto;
 	}
@@ -140,6 +147,18 @@ public class ProductoTerminado {
 	}
 	public void setPiezasEntregadas(double piezasEntregadas) {
 		this.piezasEntregadas = piezasEntregadas;
+	}
+	public String getTipoEntrega() {
+		return tipoEntrega;
+	}
+	public void setTipoEntrega(String tipoEntrega) {
+		this.tipoEntrega = tipoEntrega;
+	}
+	public int getIdDireccion() {
+		return idDireccion;
+	}
+	public void setIdDireccion(int idDireccion) {
+		this.idDireccion = idDireccion;
 	}
 	@Override
 	public String toString() {

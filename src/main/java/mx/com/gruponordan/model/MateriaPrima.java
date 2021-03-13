@@ -42,6 +42,10 @@ public class MateriaPrima {
 	private double apartado;
 	private String tipo; //P : Produccion, I: I&D
 	private double factorConversion;
+	private boolean aprobado;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss.SSS")
+	private Date fechaCreacion;
 	
 	public String getId() {
 		return id;
@@ -151,6 +155,18 @@ public class MateriaPrima {
 	}
 	public void setFactorConversion(double factorConversion) {
 		this.factorConversion = factorConversion;
+	}
+	public boolean isAprobado() {
+		return aprobado;
+	}
+	public void setAprobado(boolean aprobado) {
+		this.aprobado = aprobado;
+	}
+	public Date getFechaCreacion() {
+		return fechaCreacion;
+	}
+	public void setFechaCreacion(Date fechaCreacion) {
+		this.fechaCreacion = fechaCreacion;
 	}	
 	
 }

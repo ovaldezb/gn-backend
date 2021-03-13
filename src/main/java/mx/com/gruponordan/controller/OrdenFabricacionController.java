@@ -112,20 +112,26 @@ public class OrdenFabricacionController {
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
 		}
-		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThan(codigo,0);
+		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThanOrderByFechaCaducidad(codigo,0);
 		
 		NumberFormat nf = NumberFormat.getInstance(new Locale("es","MX"));
 		nf.setMaximumFractionDigits(2);
 		for(MateriaPrima matprima : lstMateriaPrima){
-			if(matprima.getCantidad() - matprima.getApartado() - cantReq > 0 ) { // El lote tiene suficiente y lo toma
-				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"OK","");
+			if(matprima.isAprobado()) {
+				if(matprima.getCantidad() - matprima.getApartado() - cantReq > 0 ) { // El lote tiene suficiente y lo toma
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"OK","");
+					cantReq = 0;
+					lstRspMPOF.add(mpof);				
+					break;
+				}else if((matprima.getCantidad() - matprima.getApartado()) > 0) { //Este toma lo que queda disponible en el Lote
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(matprima.getCantidad())),matprima.getLote(),"OK","");
+					lstRspMPOF.add(mpof);
+					cantReq -= (matprima.getCantidad() - matprima.getApartado());
+				}
+			}else {
+				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"ERROR","La MP no ha sido aprobada, por lo tanto no es posible utilizarla");
 				cantReq = 0;
-				lstRspMPOF.add(mpof);				
-				break;
-			}else if((matprima.getCantidad() - matprima.getApartado()) > 0) { //Este toma lo que queda disponible en el Lote
-				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(matprima.getCantidad())),matprima.getLote(),"OK","");
 				lstRspMPOF.add(mpof);
-				cantReq -= (matprima.getCantidad() - matprima.getApartado());
 			}
 		}
 		
@@ -150,20 +156,19 @@ public class OrdenFabricacionController {
 	
 	@PostMapping()
 	public ResponseEntity<?> saveOF(@RequestBody final OrdenFabricacion ordenFabricacion) {
-		
 		/*Validar las cantidades que vienen en la materia prima, para ver si alcanza*/
 		List<MatPrimaOrdFab> matprimaof = ordenFabricacion.getMatprima();
 		List<MatPrimaOrdFab> matprimaFilted = matprimaof.stream().filter(mp->!mp.getCodigo().equals(AGUA)).filter(mp->{
 			 boolean materiaInsuficiente = false;
 			if(mp.getDelta() >0) {
 				MateriaPrima matprima = repomatprima.findByLote(mp.getLote());
-				
 				materiaInsuficiente = matprima.getCantidad() - matprima.getApartado() - mp.getDelta() < 0;
 			}else {
 				materiaInsuficiente = false;
 			}
 			return materiaInsuficiente;
 		}).collect(Collectors.toList());
+		
 		if(!matprimaFilted.isEmpty()) {
 			for(MatPrimaOrdFab mpof : matprimaFilted ) {
 				for(MatPrimaOrdFab mopft :matprimaof) {
@@ -175,6 +180,16 @@ public class OrdenFabricacionController {
 			}
 			return ResponseEntity.ok(matprimaof);
 		}
+		
+		/*Actualizar la MP reservada */
+		ordenFabricacion.getMatprima().forEach(mp->{
+			if(mp.getDelta() != 0) {
+				MateriaPrima mpu = repomatprima.findByLote(mp.getLote());
+				mpu.setApartado(mpu.getApartado() + mp.getDelta());
+				repomatprima.save(mpu);
+			}
+		});
+		
 		/*Actualiza el folio para indicar que ya se fabrico*/
 		Optional<Lote> lote = loterepo.findByLote(ordenFabricacion.getLote());
 		if(lote.isPresent()) {
@@ -262,6 +277,9 @@ public class OrdenFabricacionController {
 				repoprodterm.save(pt);
 				
 			}
+			/*Eliminar las MPs que estan en 0*/
+			repomatprima.deleteByCantidad(0.0);
+			
 			/*Actualizar estatus a Lote*/
 			Optional<Lote> lote = loterepo.findByLote(ofu.getLote());
 			if(lote.isPresent()) {

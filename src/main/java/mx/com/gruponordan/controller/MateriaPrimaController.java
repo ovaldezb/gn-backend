@@ -7,8 +7,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mongodb.BasicDBObject;
 
 import io.swagger.annotations.ApiOperation;
 import mx.com.gruponordan.model.MateriaPrima;
@@ -32,7 +40,7 @@ import mx.com.gruponordan.repository.MateriaPrimaDAO;
 @CrossOrigin(origins = "*")
 public class MateriaPrimaController {
 
-	//private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
+	private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
 	
 	@Autowired
 	MateriaPrimaDAO repoMP;
@@ -40,11 +48,24 @@ public class MateriaPrimaController {
 	@Autowired
 	MatPrimaDispDAO repoMatPrimDisp;
 	
+	@Autowired
+	MongoOperations mongoperations;
+	
 	@ApiOperation(value="Regresa todas las materias primas")
 	@GetMapping()
 	public List<MateriaPrima> getAllMP() {
 		Sort sort = Sort.by(Sort.Direction.ASC, "fechaCaducidad");
 		return repoMP.findMateriasPrimasGtCantidad(0.0,sort);
+	}
+	
+	@GetMapping("/mp")
+	public ResponseEntity<?> getMPExistente(){
+		
+		TypedAggregation<MateriaPrima> mpaggreg = Aggregation.newAggregation(MateriaPrima.class,Aggregation.group("codigo").push(new BasicDBObject("_id","$_id").append("descripcion", "$descripcion")).as("mp"));
+		logger.info(mpaggreg.toString());
+		AggregationResults<MateriaPrima> results = mongoperations.aggregate(mpaggreg, MateriaPrima.class);
+		return ResponseEntity.ok(results.getMappedResults());
+		//return ResponseEntity.ok("OK");
 	}
 	
 	@GetMapping("/ini/{date}")
@@ -108,8 +129,8 @@ public class MateriaPrimaController {
 	@ApiOperation(value="Obtiene una MP por su Codigo")
 	@GetMapping("/codigo/{codigo}")
 	public ResponseEntity<?> getMatPrimaByCodigo(@PathVariable("codigo") final String codigo) {
-		Optional<MateriaPrima> mp = repoMP.findByCodigo(codigo);
-		if(mp !=null) {
+		List<MateriaPrima> mp = repoMP.findByCodigo(codigo);
+		if(!mp.isEmpty()) {
 			return ResponseEntity.ok().body(mp);
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo recuperar la mp"));
@@ -150,6 +171,7 @@ public class MateriaPrimaController {
 			mpu.setFechaCaducidad(matprima.getFechaCaducidad());
 			mpu.setTipo(matprima.getTipo());
 			mpu.setLote(matprima.getLote());
+			mpu.setAprobado(matprima.isAprobado());
 			return ResponseEntity.ok(repoMP.save(mpu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

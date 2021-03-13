@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,7 @@ public class LoteController {
 	}
 	
 	@GetMapping("/val/{lote}")
-	public ResponseEntity<?> getLotesBYType(@PathVariable final String lote){
+	public ResponseEntity<?> getLotesByType(@PathVariable final String lote){
 		if(lote.equals(VACIO)) {
 			List<Lote> lotes = lotesrepo.findByEstatusNotLike(Eestatus.CMPLT);
 			return ResponseEntity.ok(lotes.removeIf(oc -> oc.getEstatus().equals(Eestatus.CANCEL)));
@@ -68,6 +69,11 @@ public class LoteController {
 			}
 
 		}
+	}
+	
+	@GetMapping("/existe/{lote}")
+	public ResponseEntity<?> existeLote(@PathVariable final String lote){
+		return ResponseEntity.ok(lotesrepo.findByLote(lote));
 	}
 	
 	@PostMapping
@@ -103,6 +109,17 @@ public class LoteController {
 			return ResponseEntity.ok(lotesrepo.save(loteU));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error"));
+		}
+	}
+	
+	@DeleteMapping("/{idlote}")
+	public ResponseEntity<?> deleteLote(@PathVariable final String idlote){
+		Optional<Lote> lote = lotesrepo.findById(idlote);
+		if(lote.isPresent()) {
+			lotesrepo.deleteById(idlote);
+			return ResponseEntity.ok().body(new MessageResponse("OK"));
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("OK"));
 		}
 	}
 	

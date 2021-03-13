@@ -1,7 +1,9 @@
 package mx.com.gruponordan.controller;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,8 @@ public class OrdenCompraController {
 	
 	@GetMapping()
 	public ResponseEntity<?> getActiveOC(){
-		return ResponseEntity.ok(repoOC.findByEstatusNotLikeOrderByFechaEntrega(Eestatus.CMPLT));
+		List<OrdenCompra> lista = repoOC.findByEstatusNotLikeOrderByFechaEntrega(Eestatus.CMPLT); 
+		return ResponseEntity.ok(lista.stream().filter(oc -> !oc.getEstatus().equals(Eestatus.CANCEL)).collect(Collectors.toList()) );
 	}
 	
 	@GetMapping("/{idOrdenCompra}")

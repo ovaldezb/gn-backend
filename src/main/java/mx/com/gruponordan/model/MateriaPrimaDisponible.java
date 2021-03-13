@@ -17,15 +17,17 @@ public class MateriaPrimaDisponible {
 	@DBRef
 	private UnidadMedida unidad ;
 	private String codigo;
-	
-	
+	//private long necesario; //101-300
+	//private long escaso; // 0-100
 	
 	public MateriaPrimaDisponible(String descripcion, UnidadMedida unidad, String codigo) {
 		super();
 		this.descripcion = descripcion;
 		this.unidad = unidad;
 		this.codigo = codigo;
+		
 	}
+	
 	public String getId() {
 		return id;
 	}
@@ -50,8 +52,6 @@ public class MateriaPrimaDisponible {
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
-	
-	
-	
+
 	
 }

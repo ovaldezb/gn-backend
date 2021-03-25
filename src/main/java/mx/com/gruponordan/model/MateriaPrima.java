@@ -31,11 +31,14 @@ public class MateriaPrima {
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss")
 	private Date fechaCaducidad;
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+	private Date fechaAprobacion;
 	private String observaciones;
 	private String lote;
 	//private long abundante; // >300
-	private long necesario; //101-300
-	private long escaso; // 0-100
+	private double necesario; //101-300
+	private double escaso; // 0-100
 	private boolean activo;
 	/*Se pone en true cuando ya se haya ocupado todo el lote de esta MP*/
 	private double factor;
@@ -44,7 +47,7 @@ public class MateriaPrima {
 	private double factorConversion;
 	private boolean aprobado;
 	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "MM-dd-yyyy HH:mm:ss.SSS")
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaCreacion;
 	
 	public String getId() {
@@ -102,6 +105,12 @@ public class MateriaPrima {
 	public void setFechaCaducidad(Date fechaCaducidad) {
 		this.fechaCaducidad = fechaCaducidad;
 	}
+	public Date getFechaAprobacion() {
+		return fechaAprobacion;
+	}
+	public void setFechaAprobacion(Date fechaAprobacion) {
+		this.fechaAprobacion = fechaAprobacion;
+	}
 	public String getObservaciones() {
 		return observaciones;
 	}
@@ -114,16 +123,16 @@ public class MateriaPrima {
 	public void setLote(String lote) {
 		this.lote = lote;
 	}
-	public long getNecesario() {
+	public double getNecesario() {
 		return necesario;
 	}
-	public void setNecesario(long necesario) {
+	public void setNecesario(double necesario) {
 		this.necesario = necesario;
 	}
-	public long getEscaso() {
+	public double getEscaso() {
 		return escaso;
 	}
-	public void setEscaso(long escaso) {
+	public void setEscaso(double escaso) {
 		this.escaso = escaso;
 	}
 	public boolean isActivo() {

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -40,7 +38,7 @@ import mx.com.gruponordan.repository.MateriaPrimaDAO;
 @CrossOrigin(origins = "*")
 public class MateriaPrimaController {
 
-	private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
+	//private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
 	
 	@Autowired
 	MateriaPrimaDAO repoMP;
@@ -59,10 +57,8 @@ public class MateriaPrimaController {
 	}
 	
 	@GetMapping("/mp")
-	public ResponseEntity<?> getMPExistente(){
-		
+	public ResponseEntity<?> getMPExistente(){		
 		TypedAggregation<MateriaPrima> mpaggreg = Aggregation.newAggregation(MateriaPrima.class,Aggregation.group("codigo").push(new BasicDBObject("_id","$_id").append("descripcion", "$descripcion")).as("mp"));
-		logger.info(mpaggreg.toString());
 		AggregationResults<MateriaPrima> results = mongoperations.aggregate(mpaggreg, MateriaPrima.class);
 		return ResponseEntity.ok(results.getMappedResults());
 		//return ResponseEntity.ok("OK");
@@ -136,6 +132,16 @@ public class MateriaPrimaController {
 			return ResponseEntity.badRequest().body(new MessageResponse("error:no se pudo recuperar la mp"));
 		}	
 	}
+	
+	@GetMapping("/lote/{lote}") 
+	public ResponseEntity<?> getMPByLote(@PathVariable final String lote){
+		Optional<MateriaPrima> mpf = repoMP.findByLote(lote);
+		if(mpf.isPresent()) {
+			return ResponseEntity.ok(mpf.get());
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("error"));
+		}
+	}
 
 	@PostMapping()
 	public ResponseEntity<?> saveMP(@RequestBody(required = true) MateriaPrima matprima) {
@@ -172,6 +178,7 @@ public class MateriaPrimaController {
 			mpu.setTipo(matprima.getTipo());
 			mpu.setLote(matprima.getLote());
 			mpu.setAprobado(matprima.isAprobado());
+			mpu.setFechaAprobacion(matprima.getFechaAprobacion());
 			return ResponseEntity.ok(repoMP.save(mpu));
 		}else {
 			return ResponseEntity.badRequest().body(new MessageResponse("status:error"));

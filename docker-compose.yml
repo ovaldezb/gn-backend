@@ -21,5 +21,5 @@ services:
     hostname: spring
     depends_on:
       - mongo
-    image: springboot-gruponordan:1.0
+    image: springboot-gruponordan:latest
   

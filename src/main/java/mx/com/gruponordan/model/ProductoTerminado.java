@@ -35,7 +35,6 @@ public class ProductoTerminado {
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaRemision;
-	//private boolean enviado;
 	private double piezasEntregadas;
 	@Transient
 	private String tipoEntrega;

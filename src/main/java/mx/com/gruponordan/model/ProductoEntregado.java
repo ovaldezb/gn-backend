@@ -3,6 +3,8 @@ package mx.com.gruponordan.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -24,9 +26,16 @@ public class ProductoEntregado {
 	private String remision;
 	private String tipoEntrega;
 	private int idDireccion;
+	@DBRef
+	private Estatus estatus;
+	@Transient
+	private Eestatus codigoEstatus;
+	private String motivoCancel;
+	private String idProdTerminado;
 	
 	public ProductoEntregado(String oc, String lote, String cliente, String nombreProducto, double piezasEntregadas,
-			double ordenFabricacion, Date fechaEntrega, String remision, String tipoEntrega, int idDireccion) {
+			double ordenFabricacion, Date fechaEntrega, String remision, String tipoEntrega, 
+			int idDireccion, Estatus estatus, String idProdTerminado) {
 		super();
 		this.oc = oc;
 		this.lote = lote;
@@ -38,6 +47,8 @@ public class ProductoEntregado {
 		this.remision = remision;
 		this.tipoEntrega = tipoEntrega;
 		this.idDireccion = idDireccion;
+		this.estatus = estatus;
+		this.idProdTerminado = idProdTerminado;
 	}
 	
 	public String getId() {
@@ -111,12 +122,48 @@ public class ProductoEntregado {
 		this.idDireccion = idDireccion;
 	}
 
+	public Estatus getEstatus() {
+		return estatus;
+	}
+
+	public void setEstatus(Estatus estatus) {
+		this.estatus = estatus;
+	}
+
+	public String getMotivoCancel() {
+		return motivoCancel;
+	}
+
+	public void setMotivoCancel(String motivoCancel) {
+		this.motivoCancel = motivoCancel;
+	}
+
+	public String getIdProdTerminado() {
+		return idProdTerminado;
+	}
+
+	public void setIdProdTerminado(String idProdTerminado) {
+		this.idProdTerminado = idProdTerminado;
+	}
+
+	public Eestatus getCodigoEstatus() {
+		return codigoEstatus;
+	}
+
+	public void setCodigoEstatus(Eestatus codigoEstatus) {
+		this.codigoEstatus = codigoEstatus;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductoEntregado [id=" + id + ", oc=" + oc + ", lote=" + lote + ", cliente=" + cliente
 				+ ", nombreProducto=" + nombreProducto + ", piezasEntregadas=" + piezasEntregadas
 				+ ", ordenFabricacion=" + ordenFabricacion + ", fechaEntrega=" + fechaEntrega + ", remision=" + remision
-				+ "]";
+				+ ", tipoEntrega=" + tipoEntrega + ", idDireccion=" + idDireccion + ", estatus=" + estatus
+				+ ", codigoEstatus=" + codigoEstatus + ", motivoCancel=" + motivoCancel + ", idProdTerminado="
+				+ idProdTerminado + "]";
 	}
+
+	
 	
 }

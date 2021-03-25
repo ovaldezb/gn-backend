@@ -81,10 +81,11 @@ public class LoteController {
 		List<MatPrimaOrdFab> matPrimOrdFab = Arrays.asList(lote.getMateriaprima());
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
-			MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
-			if(mpf!=null) {
-				mpf.setApartado(mpf.getApartado() + mpof.getCantidad());
-				mpUpdt.add(mpf);
+			Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+			if(mpf.isPresent()) {
+				MateriaPrima mpu = mpf.get();
+				mpu.setApartado(mpu.getApartado() + mpof.getCantidad());
+				mpUpdt.add(mpu);
 			}
 		});
 		repomatprima.saveAll(mpUpdt);

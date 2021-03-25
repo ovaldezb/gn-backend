@@ -16,6 +16,7 @@ public class AdmonStockGrupoNordanApplication {//implements CommandLineRunner{
 	FilesStorageServiceImpl storageService;
 	
 	public static void main(String[] args) {
+		System.setProperty("https.protocols", "TLSv1.1");
 		SpringApplication.run(AdmonStockGrupoNordanApplication.class, args);
 	}
 	

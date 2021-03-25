@@ -112,7 +112,8 @@ public class ProductoTerminadoController {
 				}
 				ProductoEntregado prodent = new ProductoEntregado(pt.getOc(), pt.getLote(), pt.getCliente().getNombre(), 
 						pt.getProducto().getNombre(), pt.getPiezasEntregadas(), pt.getNoConsecutivo(), 
-						pt.getFechaRemision(), pt.getNoRemision(), pt.getTipoEntrega(),pt.getIdDireccion());
+						pt.getFechaRemision(), pt.getNoRemision(), 
+						pt.getTipoEntrega(),pt.getIdDireccion(),repoestatus.findByCodigo(Eestatus.OPEN), pt.getId());
 				repoPE.save(prodent);
 				ResponseEntity.ok(repoPT.save(ptu));
 			}

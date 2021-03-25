@@ -56,6 +56,7 @@ public class OrdenFabricacionController {
 	private double MILILITROS = .001;
 	//private double GRAMOS = .001;
 	private String AGUA = "AGUA001";
+	private int MAX_NUM_DIGITS = 2;
 	@Autowired
 	OrdenFabricacionDAO repoOF;
 	
@@ -115,15 +116,16 @@ public class OrdenFabricacionController {
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThanOrderByFechaCaducidad(codigo,0);
 		
 		NumberFormat nf = NumberFormat.getInstance(new Locale("es","MX"));
-		nf.setMaximumFractionDigits(2);
-		for(MateriaPrima matprima : lstMateriaPrima){
+		nf.setMaximumFractionDigits(MAX_NUM_DIGITS);
+		lstMateriaPrima.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));   
+		for(MateriaPrima matprima : lstMateriaPrima ){
 			if(matprima.isAprobado()) {
-				if(matprima.getCantidad() - matprima.getApartado() - cantReq > 0 ) { // El lote tiene suficiente y lo toma
+				if(matprima.getCantidad() - matprima.getApartado() - cantReq >= 0 ) { // El lote tiene suficiente y lo toma
 					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"OK","");
 					cantReq = 0;
 					lstRspMPOF.add(mpof);				
 					break;
-				}else if((matprima.getCantidad() - matprima.getApartado()) > 0) { //Este toma lo que queda disponible en el Lote
+				}else if((matprima.getCantidad() - matprima.getApartado()) >= 0) { //Este toma lo que queda disponible en el Lote
 					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(matprima.getCantidad())),matprima.getLote(),"OK","");
 					lstRspMPOF.add(mpof);
 					cantReq -= (matprima.getCantidad() - matprima.getApartado());
@@ -161,8 +163,8 @@ public class OrdenFabricacionController {
 		List<MatPrimaOrdFab> matprimaFilted = matprimaof.stream().filter(mp->!mp.getCodigo().equals(AGUA)).filter(mp->{
 			 boolean materiaInsuficiente = false;
 			if(mp.getDelta() >0) {
-				MateriaPrima matprima = repomatprima.findByLote(mp.getLote());
-				materiaInsuficiente = matprima.getCantidad() - matprima.getApartado() - mp.getDelta() < 0;
+				Optional<MateriaPrima> matprima = repomatprima.findByLote(mp.getLote());
+				materiaInsuficiente = matprima.get().getCantidad() - matprima.get().getApartado() - mp.getDelta() < 0;
 			}else {
 				materiaInsuficiente = false;
 			}
@@ -184,9 +186,10 @@ public class OrdenFabricacionController {
 		/*Actualizar la MP reservada */
 		ordenFabricacion.getMatprima().forEach(mp->{
 			if(mp.getDelta() != 0) {
-				MateriaPrima mpu = repomatprima.findByLote(mp.getLote());
-				mpu.setApartado(mpu.getApartado() + mp.getDelta());
-				repomatprima.save(mpu);
+				Optional<MateriaPrima> mpu = repomatprima.findByLote(mp.getLote());
+				MateriaPrima mpf = mpu.get();
+				mpf.setApartado(mpf.getApartado() + mp.getDelta());
+				repomatprima.save(mpf);
 			}
 		});
 		
@@ -251,10 +254,13 @@ public class OrdenFabricacionController {
 				if(mpof.getCodigo().equals(AGUA)) {
 					continue;
 				}
-				MateriaPrima mpf = repomatprima.findByLote(mpof.getLote());
-				mpf.setApartado(mpf.getApartado()- mpof.getCantidad());
-				mpf.setCantidad(mpf.getCantidad() - mpof.getCantidad());
-				mpUpdt.add(mpf);
+				Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+				if(mpf.isPresent()) {
+					MateriaPrima mpu = mpf.get();
+					mpu.setApartado(mpu.getApartado()- mpof.getCantidad());
+					mpu.setCantidad(mpu.getCantidad() - mpof.getCantidad());
+					mpUpdt.add(mpu);
+				}
 			}
 			repomatprima.saveAll(mpUpdt);
 			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc().getOc());
@@ -278,7 +284,12 @@ public class OrdenFabricacionController {
 				
 			}
 			/*Eliminar las MPs que estan en 0*/
-			repomatprima.deleteByCantidad(0.0);
+			//repomatprima.deleteByCantidad(0);
+			// Preguntar si esto se debe hacer, esto elimina todas las materias primas que ya no tienen cantidad
+			List<MateriaPrima> matprimdelete = repomatprima.findByCantidad(0);
+			for(MateriaPrima mpd : matprimdelete) {
+				repomatprima.deleteById(mpd.getId());
+			}
 			
 			/*Actualizar estatus a Lote*/
 			Optional<Lote> lote = loterepo.findByLote(ofu.getLote());

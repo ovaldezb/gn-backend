@@ -62,7 +62,6 @@ public class ProductoEntregadoController {
 	
 	@GetMapping("/{fecini}/{fecfin}")
 	public ResponseEntity<?> getReporteByDates(@PathVariable final String fecini, @PathVariable final String fecfin ){
-		//DateTimeFormatter df = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm:ss");
 		SimpleDateFormat parser = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 		Date fechaIni = null;
 		Date fechaFin = null;

@@ -28,13 +28,13 @@ public class ClienteController {
 	
 	@GetMapping
 	public ResponseEntity<?> getAllClientes(){
-		return ResponseEntity.ok(repocliente.findByActivo(true));
+		return ResponseEntity.ok(repocliente.findByActivoOrderByNombre(true));
 	}
 	
 	@GetMapping("/{nombre}")
 	public ResponseEntity<?> getClienteNombre(@PathVariable String nombre){
 		if(nombre.trim().equals("vacio")) {
-			return ResponseEntity.ok(repocliente.findByActivo(true));
+			return ResponseEntity.ok(repocliente.findByActivoOrderByNombre(true));
 		}else {
 			return ResponseEntity.ok(repocliente.findByNombreLike(nombre));
 		}	

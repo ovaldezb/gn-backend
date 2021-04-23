@@ -101,6 +101,7 @@ public class OrdenCompraController {
 		Optional<OrdenCompra> ocf = repoOC.findById(id);
 		if(ocf.isPresent()) {
 			OrdenCompra ocu = ocf.get();
+			ocu.setClave(ordenCompra.getClave());
 			ocu.setCliente(ordenCompra.getCliente());
 			ocu.setFechaEntrega(ordenCompra.getFechaEntrega());
 			ocu.setFechaFabricacion(ordenCompra.getFechaFabricacion());

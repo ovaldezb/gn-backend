@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.Query;
 import mx.com.gruponordan.model.Cliente;
 
 public interface ClienteDAO extends MongoRepository<Cliente, String> {
-	List<Cliente> findByActivo(boolean activo);
+	List<Cliente> findByActivoOrderByNombre(boolean activo);
 	@Query("{'nombre': {$regex: ?0 }})")
 	List<Cliente> findByNombreLike(String nombre);
 }

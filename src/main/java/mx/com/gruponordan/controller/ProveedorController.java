@@ -32,15 +32,15 @@ public class ProveedorController {
 	@GetMapping
 	@ApiOperation(value="Obtiene la lista de proveedores activos")
 	public ResponseEntity<?> getAllProveedores(){
-		return ResponseEntity.ok(repoprove.findByActivo(true));
+		return ResponseEntity.ok(repoprove.findByActivoOrderByNombre(true));
 	}
 	
 	@GetMapping("/{proveedor}")
 	public ResponseEntity<?> getClienteNombre(@PathVariable String proveedor){
 		if(proveedor.trim().equals("vacio")) {
-			return ResponseEntity.ok(repoprove.findByActivo(true));
+			return ResponseEntity.ok(repoprove.findByActivoOrderByNombre(true));
 		}else {
-			return ResponseEntity.ok(repoprove.findByNombreLike(proveedor));
+			return ResponseEntity.ok(repoprove.findByNombreLikeOrderByNombre(proveedor));
 		}
 	}
 	

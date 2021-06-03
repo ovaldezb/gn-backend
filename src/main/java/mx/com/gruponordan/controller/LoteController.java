@@ -115,8 +115,26 @@ public class LoteController {
 	
 	@DeleteMapping("/{idlote}")
 	public ResponseEntity<?> deleteLote(@PathVariable final String idlote){
-		Optional<Lote> lote = lotesrepo.findById(idlote);
-		if(lote.isPresent()) {
+		Optional<Lote> loteF = lotesrepo.findById(idlote);
+		if(loteF.isPresent()) {
+			Lote lote = loteF.get();
+			List<MatPrimaOrdFab> matPrimOrdFab = Arrays.asList(lote.getMateriaprima());
+			List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
+			matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
+				Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+				if(mpf.isPresent()) {
+					MateriaPrima mpu = mpf.get();
+					mpu.setApartado(mpu.getApartado() - mpof.getCantidad());
+					mpUpdt.add(mpu);
+				}
+			});
+			repomatprima.saveAll(mpUpdt);
+			Optional<OrdenCompra> ocF = ocrepo.findById(lote.getOc().getId());
+			if(ocF.isPresent()) {
+				OrdenCompra ocU = ocF.get();
+				ocU.setPiezasLote(ocU.getPiezasLote() - lote.getPiezasLote());
+				ocrepo.save(ocU);
+			}
 			lotesrepo.deleteById(idlote);
 			return ResponseEntity.ok().body(new MessageResponse("OK"));
 		}else {

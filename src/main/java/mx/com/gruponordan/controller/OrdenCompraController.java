@@ -109,6 +109,7 @@ public class OrdenCompraController {
 			ocu.setObservaciones(ordenCompra.getObservaciones());
 			ocu.setOc(ordenCompra.getOc());
 			ocu.setPresentacion(ordenCompra.getPresentacion());
+			ocu.setPiezas(ordenCompra.getPiezas());
 			//ocu.setAprobado(ordenCompra.isAprobado());
 			ocu.setEstatus(ordenCompra.getEstatus());
 			return ResponseEntity.ok(repoOC.save(ocu));

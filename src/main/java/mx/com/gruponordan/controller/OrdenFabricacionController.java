@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.com.gruponordan.interfaz.Definitions;
 import mx.com.gruponordan.model.Cliente;
 import mx.com.gruponordan.model.Counter;
 import mx.com.gruponordan.model.Eestatus;
@@ -49,14 +50,14 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 @RequestMapping("/api/ordenfab")
 //@CrossOrigin(origins = "http://localhost:3000")
 @CrossOrigin(origins = "*")
-public class OrdenFabricacionController {
+public class OrdenFabricacionController implements Definitions {
 
 	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
-	private double PERCENT = 100;
-	private double MILILITROS = .001;
+	//private double PERCENT = 100;
+	//private double MILILITROS = .001;
 	//private double GRAMOS = .001;
-	private String AGUA = "AGUA001";
-	private int MAX_NUM_DIGITS = 2;
+	//private String AGUA = "AGUA001";
+	//private int MAX_NUM_DIGITS = 2;
 	@Autowired
 	OrdenFabricacionDAO repoOF;
 	
@@ -114,7 +115,6 @@ public class OrdenFabricacionController {
 			return ResponseEntity.ok(lstRspMPOF);
 		}
 		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThanOrderByFechaCaducidad(codigo,0);
-		
 		NumberFormat nf = NumberFormat.getInstance(new Locale("es","MX"));
 		nf.setMaximumFractionDigits(MAX_NUM_DIGITS);
 		lstMateriaPrima.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));   

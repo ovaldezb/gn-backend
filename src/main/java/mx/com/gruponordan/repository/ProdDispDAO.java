@@ -8,4 +8,5 @@ import mx.com.gruponordan.model.ProductoDisponible;
 
 public interface ProdDispDAO extends MongoRepository<ProductoDisponible, String> {
 	Optional<ProductoDisponible> findByClave(String clave);
+	Optional<ProductoDisponible> findByClaveAndTipoProducto(String clave, String tipoProducto);
 }

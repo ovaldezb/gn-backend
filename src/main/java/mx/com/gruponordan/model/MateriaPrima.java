@@ -3,6 +3,7 @@ package mx.com.gruponordan.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -46,6 +47,8 @@ public class MateriaPrima {
 	private String tipo; //P : Produccion, I: I&D
 	private double factorConversion;
 	private boolean aprobado;
+	@Transient
+	private String tipoMP; //P Producto B: Base
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
 	private Date fechaCreacion;
@@ -176,6 +179,12 @@ public class MateriaPrima {
 	}
 	public void setFechaCreacion(Date fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
+	}
+	public String getTipoMP() {
+		return tipoMP;
+	}
+	public void setTipoMP(String tipoMP) {
+		this.tipoMP = tipoMP;
 	}	
 	
 }

@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.com.gruponordan.interfaz.Definitions;
+import mx.com.gruponordan.model.Bases;
 import mx.com.gruponordan.model.Eestatus;
 import mx.com.gruponordan.model.Lote;
 import mx.com.gruponordan.model.MatPrimaOrdFab;
 import mx.com.gruponordan.model.MateriaPrima;
 import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
+import mx.com.gruponordan.repository.BasesDAO;
 import mx.com.gruponordan.repository.LoteDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
 import mx.com.gruponordan.repository.OrdenCompraDAO;
@@ -30,11 +33,8 @@ import mx.com.gruponordan.repository.OrdenCompraDAO;
 @RestController
 @RequestMapping("/api/lote")
 @CrossOrigin(origins = "*")
-public class LoteController {
+public class LoteController implements Definitions{
 	
-	private static String VACIO = "vacio";
-	private String AGUA = "AGUA001";
-
 	@Autowired
 	LoteDAO lotesrepo;
 	
@@ -43,6 +43,9 @@ public class LoteController {
 	
 	@Autowired
 	OrdenCompraDAO ocrepo;
+	
+	@Autowired
+	BasesDAO baserepo;
 	
 	@GetMapping("/{tipo}")
 	public ResponseEntity<?> getAllLotes(@PathVariable final String tipo){
@@ -80,15 +83,31 @@ public class LoteController {
 	public ResponseEntity<?> saveLote(@RequestBody final Lote lote){
 		List<MatPrimaOrdFab> matPrimOrdFab = Arrays.asList(lote.getMateriaprima());
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
+		List<Bases> basesUpdt = new ArrayList<Bases>();
+		
 		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
-			Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
-			if(mpf.isPresent()) {
-				MateriaPrima mpu = mpf.get();
-				mpu.setApartado(mpu.getApartado() + mpof.getCantidad());
-				mpUpdt.add(mpu);
+			if(mpof.getTipo() == null) {
+				Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+				if(mpf.isPresent()) {
+					MateriaPrima mpu = mpf.get();
+					mpu.setApartado(mpu.getApartado() + mpof.getCantidad());
+					mpUpdt.add(mpu);
+				}
+			}else if(mpof.getTipo().equals(BASE)) {
+				Optional<Bases> base = baserepo.findByLote(mpof.getLote());
+				if(base.isPresent()) {
+					Bases baseUpdt = base.get();
+					baseUpdt.setApartado(baseUpdt.getApartado() + mpof.getCantidad());
+					basesUpdt.add(baseUpdt);
+				}
 			}
 		});
-		repomatprima.saveAll(mpUpdt);
+		if(!mpUpdt.isEmpty()) {
+			repomatprima.saveAll(mpUpdt);
+		}
+		if(!basesUpdt.isEmpty()) {
+			baserepo.saveAll(basesUpdt);
+		}
 		Optional<OrdenCompra> ocF = ocrepo.findById(lote.getOc().getId());
 		if(ocF.isPresent()) {
 			OrdenCompra ocU = ocF.get();

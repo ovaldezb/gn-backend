@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.BasicDBObject;
 
 import io.swagger.annotations.ApiOperation;
+import mx.com.gruponordan.interfaz.Definitions;
 import mx.com.gruponordan.model.MateriaPrima;
 import mx.com.gruponordan.model.MateriaPrimaDisponible;
 import mx.com.gruponordan.model.MessageResponse;
@@ -36,7 +37,7 @@ import mx.com.gruponordan.repository.MateriaPrimaDAO;
 @RestController
 @RequestMapping("/api/matprima")
 @CrossOrigin(origins = "*")
-public class MateriaPrimaController {
+public class MateriaPrimaController implements Definitions{
 
 	//private static Logger logger = LoggerFactory.getLogger(MateriaPrima.class);
 	
@@ -149,7 +150,7 @@ public class MateriaPrimaController {
 		if(mp!=null) {
 			Optional<MateriaPrimaDisponible> mpdisFound = repoMatPrimDisp.findByCodigo(mp.getCodigo());
 			if(!mpdisFound.isPresent()) {
-				MateriaPrimaDisponible mpdisins = new MateriaPrimaDisponible(mp.getDescripcion(),mp.getUnidad(),mp.getCodigo());
+				MateriaPrimaDisponible mpdisins = new MateriaPrimaDisponible(mp.getDescripcion(),mp.getUnidad(),mp.getCodigo(),PRODUCTO);
 				repoMatPrimDisp.save(mpdisins);
 			}
 			return ResponseEntity.ok().body(repoMP.save(matprima)) ;

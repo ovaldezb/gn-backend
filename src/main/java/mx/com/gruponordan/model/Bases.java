@@ -13,7 +13,7 @@ public class Bases {
 	@Id
 	private String id;
 	private String nombre;
-	private MateriaPrimaUsada[] materiaPrimaUsada;
+	private MatPrimaOrdFab[] materiaPrimaOrdFab;
 	private String lote;
 	private String codigo;
 	@JsonFormat
@@ -21,6 +21,11 @@ public class Bases {
 	private Date fechaProducccion;
 	private Double cantidadOriginal;
 	private Double cantidadRestante;
+	private Double apartado;
+	private String estatus;
+	private Double rendimiento;
+	private String comentarios;
+	private boolean aprobado;
 	
 	public String getId() {
 		return id;
@@ -33,12 +38,6 @@ public class Bases {
 	}
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
-	}
-	public MateriaPrimaUsada[] getMateriaPrimaUsada() {
-		return materiaPrimaUsada;
-	}
-	public void setMateriaPrimaUsada(MateriaPrimaUsada[] materiaPrimaUsada) {
-		this.materiaPrimaUsada = materiaPrimaUsada;
 	}
 	public String getLote() {
 		return lote;
@@ -69,6 +68,42 @@ public class Bases {
 	}
 	public void setCantidadRestante(Double cantidadRestante) {
 		this.cantidadRestante = cantidadRestante;
+	}
+	public Double getApartado() {
+		return apartado;
+	}
+	public void setApartado(Double apartado) {
+		this.apartado = apartado;
+	}
+	public MatPrimaOrdFab[] getMateriaPrimaOrdFab() {
+		return materiaPrimaOrdFab;
+	}
+	public void setMateriaPrimaOrdFab(MatPrimaOrdFab[] materiaPrimaOrdFab) {
+		this.materiaPrimaOrdFab = materiaPrimaOrdFab;
+	}
+	public String getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(String estatus) {
+		this.estatus = estatus;
+	}
+	public Double getRendimiento() {
+		return rendimiento;
+	}
+	public void setRendimiento(Double rendimiento) {
+		this.rendimiento = rendimiento;
+	}
+	public String getComentarios() {
+		return comentarios;
+	}
+	public void setComentarios(String comentarios) {
+		this.comentarios = comentarios;
+	}
+	public boolean isAprobado() {
+		return aprobado;
+	}
+	public void setAprobado(boolean aprobado) {
+		this.aprobado = aprobado;
 	}
 	
 

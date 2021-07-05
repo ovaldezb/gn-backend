@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.com.gruponordan.interfaz.Definitions;
+import mx.com.gruponordan.model.Bases;
 import mx.com.gruponordan.model.Cliente;
 import mx.com.gruponordan.model.Counter;
 import mx.com.gruponordan.model.Eestatus;
@@ -39,6 +40,7 @@ import mx.com.gruponordan.model.OrdenCompra;
 import mx.com.gruponordan.model.OrdenFabricacion;
 import mx.com.gruponordan.model.ProductoTerminado;
 import mx.com.gruponordan.model.Sequence;
+import mx.com.gruponordan.repository.BasesDAO;
 import mx.com.gruponordan.repository.EstatusDAO;
 import mx.com.gruponordan.repository.LoteDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
@@ -52,12 +54,6 @@ import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 @CrossOrigin(origins = "*")
 public class OrdenFabricacionController implements Definitions {
 
-	//private static Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
-	//private double PERCENT = 100;
-	//private double MILILITROS = .001;
-	//private double GRAMOS = .001;
-	//private String AGUA = "AGUA001";
-	//private int MAX_NUM_DIGITS = 2;
 	@Autowired
 	OrdenFabricacionDAO repoOF;
 	
@@ -78,6 +74,10 @@ public class OrdenFabricacionController implements Definitions {
 	
 	@Autowired
 	MongoOperations mongoperations;
+	
+	@Autowired
+	BasesDAO repobase;
+	
 	
 	@GetMapping("/active/{active}")
 	public ResponseEntity<?> getAllOF(@PathVariable String active){
@@ -105,33 +105,54 @@ public class OrdenFabricacionController implements Definitions {
 		return ResponseEntity.ok(c);
 	}
 	
-	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}")
-	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion){
+	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}/{tipo}")
+	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion, @PathVariable final String tipo){
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
+		List<MateriaPrima> lstMateriaPrima = new ArrayList<MateriaPrima>();
+		final List<MateriaPrima> lstMateriaPrimaBase = new ArrayList<MateriaPrima>();
 		double cantReq = (porcentaje / PERCENT) * piezas * presentacion * MILILITROS;
+		
 		if(codigo.equals(AGUA)) {
-			MatPrimaOrdFab mpof = new MatPrimaOrdFab(codigo, "AGUA" ,cantReq,"","OK","");
+			MatPrimaOrdFab mpof = new MatPrimaOrdFab(codigo, "AGUA" ,cantReq,"","OK","",PRODUCTO);
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
 		}
-		List<MateriaPrima> lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThanOrderByFechaCaducidad(codigo,0);
+		if(tipo.equals(PRODUCTO)) {
+			lstMateriaPrima = repomatprima.findByCodigoAndCantidadMoreThanOrderByFechaCaducidad(codigo,0);	
+		}else {
+			List<Bases> bases = repobase.findByCodigoAndCantidadRestanteMoreThan(codigo, 0);
+			bases.forEach(base ->{
+				MateriaPrima mp = new MateriaPrima();
+				mp.setAprobado(base.isAprobado());
+				mp.setCantidad(base.getCantidadRestante());
+				mp.setApartado(base.getApartado());
+				mp.setCodigo(base.getCodigo());
+				mp.setDescripcion(base.getNombre());
+				mp.setLote(base.getLote());
+				mp.setFechaCaducidad(base.getFechaProducccion());
+				mp.setTipoMP(BASE);
+				lstMateriaPrimaBase.add(mp);
+			});
+			lstMateriaPrima = lstMateriaPrimaBase;
+		}
+		
 		NumberFormat nf = NumberFormat.getInstance(new Locale("es","MX"));
 		nf.setMaximumFractionDigits(MAX_NUM_DIGITS);
 		lstMateriaPrima.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));   
 		for(MateriaPrima matprima : lstMateriaPrima ){
 			if(matprima.isAprobado()) {
 				if(matprima.getCantidad() - matprima.getApartado() - cantReq >= 0 ) { // El lote tiene suficiente y lo toma
-					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"OK","");
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(), matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"OK","",matprima.getTipoMP());
 					cantReq = 0;
 					lstRspMPOF.add(mpof);				
 					break;
 				}else if((matprima.getCantidad() - matprima.getApartado()) >= 0) { //Este toma lo que queda disponible en el Lote
-					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(matprima.getCantidad())),matprima.getLote(),"OK","");
+					MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(matprima.getCantidad())),matprima.getLote(),"OK","",matprima.getTipoMP());
 					lstRspMPOF.add(mpof);
 					cantReq -= (matprima.getCantidad() - matprima.getApartado());
 				}
 			}else {
-				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"ERROR","La MP no ha sido aprobada, por lo tanto no es posible utilizarla");
+				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"ERROR","La MP no ha sido aprobada, por lo tanto no es posible utilizarla",matprima.getTipoMP());
 				cantReq = 0;
 				lstRspMPOF.add(mpof);
 			}
@@ -143,13 +164,13 @@ public class OrdenFabricacionController implements Definitions {
 			MatPrimaOrdFab mpof = null;
 			lstRspMPOF.clear();
 			if(lstMateriaPrima.isEmpty()) {
-				 mpof = new MatPrimaOrdFab(codigo,"", cantReq, codigo, "ERROR", "Materia prima no encontrada");
+				 mpof = new MatPrimaOrdFab(codigo,"", cantReq, codigo, "ERROR", "Materia prima no encontrada",PRODUCTO);
 			}else if(cantReq > 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
-				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq));
+				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq),PRODUCTO);
 			}else if(cantReq < 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
-				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "El lote no cuenta con insuficiente MP, le faltan "+df.format(Math.abs(cantReq)));
+				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "El lote no cuenta con insuficiente MP, le faltan "+df.format(Math.abs(cantReq)),PRODUCTO);
 			}			
 			lstRspMPOF.add(mpof);
 			return ResponseEntity.ok(lstRspMPOF);
@@ -161,10 +182,16 @@ public class OrdenFabricacionController implements Definitions {
 		/*Validar las cantidades que vienen en la materia prima, para ver si alcanza*/
 		List<MatPrimaOrdFab> matprimaof = ordenFabricacion.getMatprima();
 		List<MatPrimaOrdFab> matprimaFilted = matprimaof.stream().filter(mp->!mp.getCodigo().equals(AGUA)).filter(mp->{
-			 boolean materiaInsuficiente = false;
+			boolean materiaInsuficiente = false;
 			if(mp.getDelta() >0) {
-				Optional<MateriaPrima> matprima = repomatprima.findByLote(mp.getLote());
-				materiaInsuficiente = matprima.get().getCantidad() - matprima.get().getApartado() - mp.getDelta() < 0;
+				if(mp.getTipo().equals(PRODUCTO)) {
+					Optional<MateriaPrima> matprima = repomatprima.findByLote(mp.getLote());
+					materiaInsuficiente = matprima.get().getCantidad() - matprima.get().getApartado() - mp.getDelta() < 0;
+				}else {
+					Optional<Bases> base = repobase.findByLote(mp.getLote());
+					materiaInsuficiente = base.get().getCantidadRestante() - base.get().getApartado() - mp.getDelta() < 0;
+				}
+				
 			}else {
 				materiaInsuficiente = false;
 			}
@@ -186,10 +213,17 @@ public class OrdenFabricacionController implements Definitions {
 		/*Actualizar la MP reservada */
 		ordenFabricacion.getMatprima().forEach(mp->{
 			if(mp.getDelta() != 0) {
-				Optional<MateriaPrima> mpu = repomatprima.findByLote(mp.getLote());
-				MateriaPrima mpf = mpu.get();
-				mpf.setApartado(mpf.getApartado() + mp.getDelta());
-				repomatprima.save(mpf);
+				if(mp.getTipo().equals(PRODUCTO)) {
+					Optional<MateriaPrima> mpu = repomatprima.findByLote(mp.getLote());
+					MateriaPrima mpf = mpu.get();
+					mpf.setApartado(mpf.getApartado() + mp.getDelta());
+					repomatprima.save(mpf);
+				}else if(mp.getTipo().equals(BASE)) {
+					Optional<Bases> basef = repobase.findByLote(mp.getLote());
+					Bases baseu = basef.get();
+					baseu.setApartado(baseu.getApartado() + mp.getDelta());
+					repobase.save(baseu);
+				}
 			}
 		});
 		
@@ -241,12 +275,14 @@ public class OrdenFabricacionController implements Definitions {
 	
 	/*
 	 * Completa una OF y genera un PT
+	 * Quita la cantidad que estaba en apartado y lo descuenta de MP disponible
 	 */
 	@GetMapping("/complete/{idOrdenFabricacion}")
 	public ResponseEntity<?> completeOF(@PathVariable final String idOrdenFabricacion ){
 		Optional<OrdenFabricacion> off = repoOF.findById(idOrdenFabricacion);
 		List<MatPrimaOrdFab> matPrimOrdFab;
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
+		List<Bases> baseUpdt = new ArrayList<Bases>();
 		if(off.isPresent()) {			
 			OrdenFabricacion ofu = off.get();
 			matPrimOrdFab = ofu.getMatprima();
@@ -254,15 +290,34 @@ public class OrdenFabricacionController implements Definitions {
 				if(mpof.getCodigo().equals(AGUA)) {
 					continue;
 				}
-				Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
-				if(mpf.isPresent()) {
-					MateriaPrima mpu = mpf.get();
-					mpu.setApartado(mpu.getApartado()- mpof.getCantidad());
-					mpu.setCantidad(mpu.getCantidad() - mpof.getCantidad());
-					mpUpdt.add(mpu);
+				/*Cuando el tipo es NULL significa ques es un Producto */
+				if(mpof.getTipo()==null) {
+					Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+					if(mpf.isPresent()) {
+						MateriaPrima mpu = mpf.get();
+						mpu.setApartado(mpu.getApartado()- mpof.getCantidad());
+						mpu.setCantidad(mpu.getCantidad() - mpof.getCantidad());
+						mpUpdt.add(mpu);
+					}
+				/*Es una base*/	
+				}else if(mpof.getTipo().equals(BASE)) {
+					Optional<Bases> basef = repobase.findByLote(mpof.getLote());
+					if(basef.isPresent()) {
+						Bases baseu = basef.get();
+						baseu.setApartado(baseu.getApartado() - mpof.getCantidad());
+						baseu.setCantidadRestante(baseu.getCantidadRestante() - mpof.getCantidad());
+						if(baseu.getCantidadRestante()==0) {
+							baseu.setEstatus(Eestatus.CMPLT.toString());
+						}
+						baseUpdt.add(baseu);
+					}
+					
 				}
 			}
 			repomatprima.saveAll(mpUpdt);
+			if(!baseUpdt.isEmpty()) {
+				repobase.saveAll(baseUpdt);
+			}
 			Optional<OrdenCompra> oc = repoOC.findByOc(ofu.getOc().getOc());
 			Estatus wtdl = repoestatus.findByCodigo(Eestatus.WTDEL);
 			if(oc.isPresent()) {

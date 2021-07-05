@@ -17,15 +17,15 @@ public class MateriaPrimaDisponible {
 	@DBRef
 	private UnidadMedida unidad ;
 	private String codigo;
-	//private long necesario; //101-300
-	//private long escaso; // 0-100
+	//Almacena si es Producto o Base
+	private String tipo;
 	
-	public MateriaPrimaDisponible(String descripcion, UnidadMedida unidad, String codigo) {
+	public MateriaPrimaDisponible(String descripcion, UnidadMedida unidad, String codigo,String tipo) {
 		super();
 		this.descripcion = descripcion;
 		this.unidad = unidad;
 		this.codigo = codigo;
-		
+		this.tipo = tipo;
 	}
 	
 	public String getId() {
@@ -51,6 +51,20 @@ public class MateriaPrimaDisponible {
 	}
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	@Override
+	public String toString() {
+		return "MateriaPrimaDisponible [id=" + id + ", descripcion=" + descripcion + ", unidad=" + unidad.getUnidadMedida() + ", codigo="
+				+ codigo + ", tipo=" + tipo + "]";
 	}
 
 	

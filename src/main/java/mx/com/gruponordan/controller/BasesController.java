@@ -167,6 +167,39 @@ public class BasesController implements Definitions{
 		}
 	}
 	
+	@PutMapping("/complete/{id}")
+	public ResponseEntity<?> completeBase(@PathVariable String id, @RequestBody Bases base){
+		Optional<Bases> bf = basesrepo.findById(id);
+		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
+		List<MatPrimaOrdFab> matPrimOrdFab = null;// Arrays.asList(bf.getMateriaPrimaOrdFab());
+		if(bf.isPresent()) {
+			Bases baseUpdt = bf.get();
+			baseUpdt.setLote(base.getLote());
+			baseUpdt.setNombre(base.getNombre());
+			baseUpdt.setCantidadOriginal(base.getCantidadOriginal());
+			baseUpdt.setCantidadRestante(base.getCantidadRestante());
+			baseUpdt.setMateriaPrimaOrdFab(base.getMateriaPrimaOrdFab());
+			baseUpdt.setEstatus(base.getEstatus());
+			baseUpdt.setComentarios(base.getComentarios());
+			baseUpdt.setRendimiento(base.getRendimiento());
+			baseUpdt.setAprobado(base.isAprobado());
+			matPrimOrdFab = Arrays.asList(baseUpdt.getMateriaPrimaOrdFab());
+			matPrimOrdFab.forEach(mp -> {
+				Optional<MateriaPrima> mpf = repomatprima.findByLote(mp.getLote());
+				if(mpf.isPresent()) {
+					MateriaPrima mpu = mpf.get();
+					mpu.setApartado(mpu.getApartado() - mp.getCantidad());
+					mpu.setCantidad(mpu.getCantidad() - mp.getCantidad());
+					mpUpdt.add(mpu);
+				}
+			});
+			repomatprima.saveAll(mpUpdt);
+			return ResponseEntity.ok(basesrepo.save(baseUpdt));
+		}else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cause description here");
+		}
+	}
+	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateBase(@PathVariable String id, @RequestBody Bases base){
 		Optional<Bases> bf = basesrepo.findById(id);

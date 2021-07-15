@@ -14,6 +14,7 @@ public class ProductoDisponible {
 	private MateriaPrimaUsada[] materiaPrimaUsada;
 	private double prodxcaja;
 	private String tipoProducto;
+	private String formula;
 	
 	public String getId() {
 		return id;
@@ -56,5 +57,11 @@ public class ProductoDisponible {
 	}
 	public void setTipoProducto(String tipoProducto) {
 		this.tipoProducto = tipoProducto;
+	}
+	public String getFormula() {
+		return formula;
+	}
+	public void setFormula(String formula) {
+		this.formula = formula;
 	}
 }

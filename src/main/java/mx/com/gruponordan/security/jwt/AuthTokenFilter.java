@@ -24,6 +24,7 @@ import mx.com.gruponordan.security.service.UserDetailsServiceImpl;
 public class AuthTokenFilter extends OncePerRequestFilter {
 	
 	
+	
 	@Autowired
 	private JwtUtils jwtUtils;
 
@@ -35,8 +36,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+		
 		try {
-			//System.out.println(request.getLocalName()+" "+request.getLocalPort());
+			
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 				String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -60,7 +62,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		} catch(Exception e) {
 			logger.error("Error", e);
 		}
-
 		filterChain.doFilter(request, response);
 	}
 

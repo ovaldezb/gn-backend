@@ -33,10 +33,8 @@ import mx.com.gruponordan.security.service.UserDetailsImpl;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins =  "*")
 public class AuthController {
-
-	//private static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 	@Autowired
 	AuthenticationManager authenticationManager;

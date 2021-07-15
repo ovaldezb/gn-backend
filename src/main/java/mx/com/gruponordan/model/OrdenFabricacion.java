@@ -26,6 +26,11 @@ public class OrdenFabricacion {
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date fechaFin;
 	
+	@JsonFormat
+	(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+	private Date fechaCreacion;
+	
+	
 	
 	public String getId() {
 		return id;
@@ -80,6 +85,12 @@ public class OrdenFabricacion {
 	}
 	public void setLote(String lote) {
 		this.lote = lote;
+	}
+	public Date getFechaCreacion() {
+		return fechaCreacion;
+	}
+	public void setFechaCreacion(Date fechaCreacion) {
+		this.fechaCreacion = fechaCreacion;
 	}
 	@Override
 	public String toString() {

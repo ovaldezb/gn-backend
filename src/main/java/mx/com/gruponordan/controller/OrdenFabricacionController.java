@@ -38,6 +38,7 @@ import mx.com.gruponordan.model.MateriaPrima;
 import mx.com.gruponordan.model.MessageResponse;
 import mx.com.gruponordan.model.OrdenCompra;
 import mx.com.gruponordan.model.OrdenFabricacion;
+import mx.com.gruponordan.model.ProductoDisponible;
 import mx.com.gruponordan.model.ProductoTerminado;
 import mx.com.gruponordan.model.Sequence;
 import mx.com.gruponordan.repository.BasesDAO;
@@ -46,6 +47,7 @@ import mx.com.gruponordan.repository.LoteDAO;
 import mx.com.gruponordan.repository.MateriaPrimaDAO;
 import mx.com.gruponordan.repository.OrdenCompraDAO;
 import mx.com.gruponordan.repository.OrdenFabricacionDAO;
+import mx.com.gruponordan.repository.ProdDispDAO;
 import mx.com.gruponordan.repository.ProductoTerminadoDAO;
 
 @RestController
@@ -78,6 +80,9 @@ public class OrdenFabricacionController implements Definitions {
 	@Autowired
 	BasesDAO repobase;
 	
+	@Autowired
+	ProdDispDAO repoproddisp;
+	
 	
 	@GetMapping("/active/{active}")
 	public ResponseEntity<?> getAllOF(@PathVariable String active){
@@ -107,6 +112,7 @@ public class OrdenFabricacionController implements Definitions {
 	
 	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}/{tipo}")
 	public ResponseEntity<?> validaMPforOF(@PathVariable final String codigo, @PathVariable final double porcentaje, @PathVariable final double piezas, @PathVariable final double presentacion, @PathVariable final String tipo){
+		
 		List<MatPrimaOrdFab> lstRspMPOF = new ArrayList<MatPrimaOrdFab>();
 		List<MateriaPrima> lstMateriaPrima = new ArrayList<MateriaPrima>();
 		final List<MateriaPrima> lstMateriaPrimaBase = new ArrayList<MateriaPrima>();
@@ -136,6 +142,7 @@ public class OrdenFabricacionController implements Definitions {
 			lstMateriaPrima = lstMateriaPrimaBase;
 		}
 		
+		
 		NumberFormat nf = NumberFormat.getInstance(new Locale("es","MX"));
 		nf.setMaximumFractionDigits(MAX_NUM_DIGITS);
 		lstMateriaPrima.sort((d1,d2)->d1.getFechaCaducidad().compareTo(d2.getFechaCaducidad()));   
@@ -164,7 +171,8 @@ public class OrdenFabricacionController implements Definitions {
 			MatPrimaOrdFab mpof = null;
 			lstRspMPOF.clear();
 			if(lstMateriaPrima.isEmpty()) {
-				 mpof = new MatPrimaOrdFab(codigo,"", cantReq, codigo, "ERROR", "Materia prima no encontrada",PRODUCTO);
+				Optional<ProductoDisponible> pd = Optional.ofNullable(repoproddisp.findByClave(codigo).get(0));
+				 mpof = new MatPrimaOrdFab(codigo,pd.get().getNombre(), cantReq, codigo, "ERROR", "Materia prima no encontrada en Almacen",PRODUCTO);
 			}else if(cantReq > 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
 				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq),PRODUCTO);

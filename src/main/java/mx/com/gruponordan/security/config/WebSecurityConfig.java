@@ -55,43 +55,40 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		
 		http.cors().and().csrf().disable().exceptionHandling()
-				.authenticationEntryPoint(unauthorizedHandler)
-				.and()
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				/* Seccion para restringir acceso, deshabilitado para pruebas*/
-				.and()
-				.authorizeRequests()
-				.antMatchers("/api/auth/**").permitAll()
-				.antMatchers("/api/test/**").permitAll()
-				.antMatchers("/api/matprima/**").permitAll()
-				.antMatchers("/api/bitacora/**").permitAll()
-				.antMatchers("/api/file/**").permitAll()
-				.antMatchers("/api/ordenfab/**").permitAll()
-				.antMatchers("/api/producto/**").permitAll()
-				.antMatchers("/api/prodterm/**").permitAll()
-				.antMatchers("/api/role/**").permitAll()
-				.antMatchers("/api/usuario/**").permitAll()
-				.antMatchers("/api/unidad/**").permitAll()
-				.antMatchers("/api/prodisp/**").permitAll()
-				.antMatchers("/api/matprimdisp/**").permitAll()
-				.antMatchers("/api/ordenfab/**").permitAll()
-				.antMatchers("/api/utils/**").permitAll()
-				.antMatchers("/api/ordencompra/**").permitAll()
-				.antMatchers("/api/cliente/**").permitAll()
-				.antMatchers("/api/proveedor/**").permitAll()
-				.antMatchers("/api/prodent/**").permitAll()
-				.antMatchers("/api/lote/**").permitAll()
-				.antMatchers("/api/bases/**").permitAll()
-				//.antMatchers("/swagger/**").permitAll()
-				//.antMatchers("/**").permitAll()	
-				.anyRequest()
-				.authenticated();
+			.authenticationEntryPoint(unauthorizedHandler)
+			.and()
+			.sessionManagement()
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			/* Seccion para restringir acceso, deshabilitado para pruebas*/
+			.and()
+			.authorizeRequests()
+			.antMatchers("/api/auth/**").permitAll()
+			.antMatchers("/api/test/**").permitAll()
+			.antMatchers("/api/matprima/**").permitAll()
+			.antMatchers("/api/bitacora/**").permitAll()
+			.antMatchers("/api/file/**").permitAll()
+			.antMatchers("/api/ordenfab/**").permitAll()
+			.antMatchers("/api/producto/**").permitAll()
+			.antMatchers("/api/prodterm/**").permitAll()
+			.antMatchers("/api/role/**").permitAll()
+			.antMatchers("/api/usuario/**").permitAll()
+			.antMatchers("/api/unidad/**").permitAll()
+			.antMatchers("/api/prodisp/**").permitAll()
+			.antMatchers("/api/matprimdisp/**").permitAll()
+			.antMatchers("/api/ordenfab/**").permitAll()
+			.antMatchers("/api/utils/**").permitAll()
+			.antMatchers("/api/ordencompra/**").permitAll()
+			.antMatchers("/api/cliente/**").permitAll()
+			.antMatchers("/api/proveedor/**").permitAll()
+			.antMatchers("/api/prodent/**").permitAll()
+			.antMatchers("/api/lote/**").permitAll()
+			.antMatchers("/api/bases/**").permitAll()
+			//.antMatchers("/swagger/**").permitAll()
+			//.antMatchers("/**").permitAll()	
+			.anyRequest()
+			.authenticated();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
-	
-	
 
 }

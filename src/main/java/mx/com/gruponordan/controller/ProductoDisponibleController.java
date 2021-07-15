@@ -3,6 +3,7 @@ package mx.com.gruponordan.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import mx.com.gruponordan.interfaz.Definitions;
 import mx.com.gruponordan.model.MateriaPrimaDisponible;
@@ -50,6 +52,10 @@ public class ProductoDisponibleController implements Definitions{
 	
 	@PostMapping
 	public ResponseEntity<?> saveProdDisp(@RequestBody final ProductoDisponible prddisp){
+		Optional<ProductoDisponible> prodDispF = prddisprepo.findByClaveAndFormula(prddisp.getClave(), prddisp.getFormula());
+		if(prodDispF.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "El Producto Disponible ya existe para esta clave y formula");
+		}
 		ProductoDisponible prdinsrt = prddisprepo.save(prddisp);
 		if(prdinsrt!=null) {
 			if(prddisp.getTipoProducto().equals("B")) {

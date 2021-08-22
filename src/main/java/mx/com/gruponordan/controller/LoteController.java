@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -84,37 +85,40 @@ public class LoteController implements Definitions{
 		List<MatPrimaOrdFab> matPrimOrdFab = Arrays.asList(lote.getMateriaprima());
 		List<MateriaPrima> mpUpdt = new ArrayList<MateriaPrima>();
 		List<Bases> basesUpdt = new ArrayList<Bases>();
-		
-		matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
-			if(mpof.getTipo() == null) {
-				Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
-				if(mpf.isPresent()) {
-					MateriaPrima mpu = mpf.get();
-					mpu.setApartado(mpu.getApartado() + mpof.getCantidad());
-					mpUpdt.add(mpu);
+		try {
+			matPrimOrdFab.stream().filter(mp->!mp.getCodigo().equals(AGUA)).forEach(mpof -> {
+				if(mpof.getTipo() == null) {
+					Optional<MateriaPrima> mpf = repomatprima.findByLote(mpof.getLote());
+					if(mpf.isPresent()) {
+						MateriaPrima mpu = mpf.get();
+						mpu.setApartado(mpu.getApartado() + mpof.getCantidad());
+						mpUpdt.add(mpu);
+					}
+				}else if(mpof.getTipo().equals(BASE)) {
+					Optional<Bases> base = baserepo.findByLote(mpof.getLote());
+					if(base.isPresent()) {
+						Bases baseUpdt = base.get();
+						baseUpdt.setApartado(baseUpdt.getApartado() + mpof.getCantidad());
+						basesUpdt.add(baseUpdt);
+					}
 				}
-			}else if(mpof.getTipo().equals(BASE)) {
-				Optional<Bases> base = baserepo.findByLote(mpof.getLote());
-				if(base.isPresent()) {
-					Bases baseUpdt = base.get();
-					baseUpdt.setApartado(baseUpdt.getApartado() + mpof.getCantidad());
-					basesUpdt.add(baseUpdt);
-				}
+			});
+			if(!mpUpdt.isEmpty()) {
+				repomatprima.saveAll(mpUpdt);
 			}
-		});
-		if(!mpUpdt.isEmpty()) {
-			repomatprima.saveAll(mpUpdt);
+			if(!basesUpdt.isEmpty()) {
+				baserepo.saveAll(basesUpdt);
+			}
+			Optional<OrdenCompra> ocF = ocrepo.findById(lote.getOc().getId());
+			if(ocF.isPresent()) {
+				OrdenCompra ocU = ocF.get();
+				ocU.setPiezasLote(ocU.getPiezasLote() + lote.getPiezasLote());
+				ocrepo.save(ocU);
+			}
+			return ResponseEntity.ok(lotesrepo.save(lote));
+		}catch(IncorrectResultSizeDataAccessException excp) {
+			return ResponseEntity.badRequest().body(new MessageResponse("Error: Llave duplicada "+excp.getMessage()));
 		}
-		if(!basesUpdt.isEmpty()) {
-			baserepo.saveAll(basesUpdt);
-		}
-		Optional<OrdenCompra> ocF = ocrepo.findById(lote.getOc().getId());
-		if(ocF.isPresent()) {
-			OrdenCompra ocU = ocF.get();
-			ocU.setPiezasLote(ocU.getPiezasLote() + lote.getPiezasLote());
-			ocrepo.save(ocU);
-		}
-		return ResponseEntity.ok(lotesrepo.save(lote));
 	}
 	
 	@PutMapping("/{idlote}")

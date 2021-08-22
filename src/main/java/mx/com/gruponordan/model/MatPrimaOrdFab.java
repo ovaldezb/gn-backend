@@ -2,7 +2,7 @@ package mx.com.gruponordan.model;
 
 /**
  * Este Bean sera ocupado para almacenar las materias primas usadas en una OF*/
-public class MatPrimaOrdFab {
+public class MatPrimaOrdFab implements Comparable<MatPrimaOrdFab> {
 
 	private String codigo;
 	private String nombre;
@@ -12,7 +12,6 @@ public class MatPrimaOrdFab {
 	private String comentarios;
 	private double delta;
 	private String tipo;
-	
 	
 	public MatPrimaOrdFab(String codigo,String nombre, double cantidad, String lote, String estatus, String comentarios, String tipo) {
 		super();
@@ -77,6 +76,12 @@ public class MatPrimaOrdFab {
 	public String toString() {
 		return "MatPrimaOrdFab [codigo=" + codigo + ", nombre=" + nombre + ", cantidad=" + cantidad + ", lote=" + lote
 				+ ", estatus=" + estatus + ", comentarios=" + comentarios + "]";
+	}
+	
+	@Override
+	public int compareTo(MatPrimaOrdFab o) {
+		// TODO Auto-generated method stub
+		return (this.nombre.compareTo(o.nombre));
 	}
 	
 }

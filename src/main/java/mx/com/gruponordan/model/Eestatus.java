@@ -9,5 +9,7 @@ public enum Eestatus {
 	DELVRD,
 	APRVD,
 	EEP,
-	CANCEL
+	CANCEL,
+	DISP,
+	PCLOSE
 }

@@ -3,12 +3,18 @@ package mx.com.gruponordan.controller;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -83,6 +89,8 @@ public class OrdenFabricacionController implements Definitions {
 	@Autowired
 	ProdDispDAO repoproddisp;
 	
+	//Logger logger = LoggerFactory.getLogger(OrdenFabricacionController.class);
+	
 	
 	@GetMapping("/active/{active}")
 	public ResponseEntity<?> getAllOF(@PathVariable String active){
@@ -108,6 +116,77 @@ public class OrdenFabricacionController implements Definitions {
 	public ResponseEntity<?> getMaxOF(){
 		Counter c = new Counter(repoOF.count());
 		return ResponseEntity.ok(c);
+	}
+	
+	@GetMapping("/{idOrdenFabricacion}/print")
+	public ResponseEntity<?> getDesgloceMPImpresion(@PathVariable final String idOrdenFabricacion){
+		Optional<OrdenFabricacion> of = repoOF.findById(idOrdenFabricacion);
+		
+		if(of.isPresent()) {
+			OrdenFabricacion off = of.get();
+			Map<String,Double> formulaProductoTerminado = new HashMap<>();
+			Map<String,Double> formulaBaseMap = new HashMap<>();
+			Map<String, Double> mpTotalByCodigo = new HashMap<>();
+			List<MatPrimaOrdFab> lstPrint = new ArrayList<>();
+			Map<String,MatPrimaOrdFab> mapPrint = new HashMap<>();
+			Arrays.asList(off.getOc().getProducto().getMateriaPrimaUsada()).forEach(mpUsed ->{
+				formulaProductoTerminado.put(mpUsed.getMateriaprimadisponible().getCodigo(), mpUsed.getPorcentaje());
+			});
+			
+			off.getMatprima().forEach(mpused -> {
+				//Si es Base, tengo que buscar la información del lote, necesito saber la fórmula de la base también
+				if(mpused.getTipo() != null && mpused.getTipo().equals("B")) {
+					Optional<Bases> base = repobase.findByLote(mpused.getLote());
+					Optional<ProductoDisponible> formulaBase = repoproddisp.findByClaveAndTipoProducto(mpused.getCodigo(),"B");
+					if(formulaBase.isPresent()) {
+						Arrays.asList(formulaBase.get().getMateriaPrimaUsada()).forEach(fb->{
+							formulaBaseMap.put(fb.getMateriaprimadisponible().getCodigo(), fb.getPorcentaje());
+						});
+					}
+					if(base.isPresent()) {
+						Arrays.asList(base.get().getMateriaPrimaOrdFab()).forEach(mpLote ->{
+							mpLote.setDelta(formulaProductoTerminado.get(mpused.getCodigo()) * formulaBaseMap.get(mpLote.getCodigo()) / 10000);
+							//lstPrint.add(mpLote);
+							if(mapPrint.get(mpLote.getCodigo()+mpLote.getLote()) != null) {
+								MatPrimaOrdFab mpof = mapPrint.get(mpLote.getCodigo()+mpLote.getLote());
+								mpof.setCantidad(mpof.getCantidad() + mpLote.getCantidad());
+								mapPrint.put(mpLote.getCodigo()+mpLote.getLote(), mpof);
+							}else {
+								mapPrint.put(mpLote.getCodigo()+mpLote.getLote(), mpLote);
+							}
+							if(mpTotalByCodigo.get(mpLote.getCodigo()) != null) {
+								mpTotalByCodigo.put(mpLote.getCodigo(), mpTotalByCodigo.get(mpLote.getCodigo()) + mpLote.getCantidad());
+							}else {
+								mpTotalByCodigo.put(mpLote.getCodigo(), mpLote.getCantidad() );
+							}
+						});
+					}
+				}else {
+					mpused.setDelta(formulaProductoTerminado.get(mpused.getCodigo()) / 100);
+					if(mpTotalByCodigo.get(mpused.getCodigo()) != null) {
+						mpTotalByCodigo.put(mpused.getCodigo(), mpTotalByCodigo.get(mpused.getCodigo()) + mpused.getCantidad());
+					}else {
+						mpTotalByCodigo.put(mpused.getCodigo(), mpused.getCantidad() );
+					}
+					mapPrint.put(mpused.getCodigo()+mpused.getLote(), mpused);
+				}
+			});
+			
+			Iterator<String> it = mapPrint.keySet().iterator();
+			while(it.hasNext()) {
+				lstPrint.add(mapPrint.get(it.next()));
+			}
+			return ResponseEntity.ok(lstPrint.stream().map( mpPrint -> {
+				mpPrint.setDelta(mpPrint.getDelta() * mpPrint.getCantidad() / mpTotalByCodigo.get(mpPrint.getCodigo()));
+				return mpPrint;
+				}).sorted().collect(Collectors.toList()));
+		}else {
+			return ResponseEntity.badRequest().body(new MessageResponse("Error"));
+		}
+		
+		
+		
+		
 	}
 	
 	@GetMapping("/validar/{codigo}/{porcentaje}/{piezas}/{presentacion}/{tipo}")
@@ -159,6 +238,11 @@ public class OrdenFabricacionController implements Definitions {
 					cantReq -= (matprima.getCantidad() - matprima.getApartado());
 				}
 			}else {
+				/*
+				 * Cuando viene de una Base, pueden haber muchos lotes
+				 * yo creo que esta bien que regrese todos los lotes, para que se sepa porque no 
+				 * hay uno que cumpla
+				 */
 				MatPrimaOrdFab mpof = new MatPrimaOrdFab(matprima.getCodigo(),matprima.getDescripcion(),Double.parseDouble(nf.format(cantReq)),matprima.getLote(),"ERROR","La MP no ha sido aprobada, por lo tanto no es posible utilizarla",matprima.getTipoMP());
 				cantReq = 0;
 				lstRspMPOF.add(mpof);
@@ -175,7 +259,7 @@ public class OrdenFabricacionController implements Definitions {
 				 mpof = new MatPrimaOrdFab(codigo,pd.get().getNombre(), cantReq, codigo, "ERROR", "Materia prima no encontrada en Almacen",PRODUCTO);
 			}else if(cantReq > 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
-				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq),PRODUCTO);
+				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),(porcentaje / PERCENT) * piezas * presentacion * MILILITROS , codigo, "ERROR", "MP insuficiente por "+df.format(cantReq),PRODUCTO);
 			}else if(cantReq < 0) {
 				DecimalFormat df = new DecimalFormat("###,###,###.##");
 				mpof = new MatPrimaOrdFab(lstMateriaPrima.get(0).getCodigo(), lstMateriaPrima.get(0).getDescripcion(),Double.parseDouble(df.format((porcentaje / PERCENT) * piezas * presentacion * MILILITROS)) , codigo, "ERROR", "El lote no cuenta con insuficiente MP, le faltan "+df.format(Math.abs(cantReq)),PRODUCTO);
@@ -315,7 +399,7 @@ public class OrdenFabricacionController implements Definitions {
 						baseu.setApartado(baseu.getApartado() - mpof.getCantidad());
 						baseu.setCantidadRestante(baseu.getCantidadRestante() - mpof.getCantidad());
 						if(baseu.getCantidadRestante()==0) {
-							baseu.setEstatus(Eestatus.CMPLT.toString());
+							baseu.setEstatus(Eestatus.PCLOSE.toString());
 						}
 						baseUpdt.add(baseu);
 					}
